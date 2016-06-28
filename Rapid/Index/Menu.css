@@ -1,0 +1,16 @@
+﻿/*文件夹样式*/
+.folderMenu { padding: 1px 0 1px 16px; display: block; }
+/*.folder { background: url(images/folder.gif) 0 0 no-repeat; }*/
+.folderMenu { background: url(images/page.png) 0 0 no-repeat; }
+/*销售管理*/
+.SellManager{ background: url(images/n_xs.png) 0 0 no-repeat; }
+/*采购管理*/
+.PurchaseManager{ background: url(images/n_cg.png) 0 0 no-repeat; }
+/*库房管理*/
+.StoreroomManager{ background: url(images/n_kf.png) 0 0 no-repeat; }
+/*生产管理*/
+.ProduceManager{ background: url(images/n_sc.png) 0 0 no-repeat; }
+/*财务管理*/
+.FinancialManager{ background: url(images/n_cw.png) 0 0 no-repeat; }
+/*系统管理*/
+.SystemManager{ background: url(images/folder.gif) 0 0 no-repeat; }

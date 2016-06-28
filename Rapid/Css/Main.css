@@ -1,0 +1,297 @@
+﻿body {
+    font-size: 12px;
+    font-family: "Microsoft YaHei",微软雅黑, "Microsoft JhengHei",华文细黑,STHeiti,MingLiu;
+    font-family: @宋体; /*filter: progid:DXImageTransform.Microsoft.Gradient(gradientType=0,startColorStr='#F4F1E7',endColorStr='#ffffff');*/
+    padding: 0px;
+    margin: 0px;
+}
+
+img {
+    border: 0px solid black;
+}
+
+.labelRed {
+    background-color: Red;
+    color: White;
+    border-radius: 5px;
+    padding-top: 2px;
+    padding-bottom: 2px;
+    padding-left: 8px;
+    padding-right: 8px;
+}
+
+a:link {
+    color: Black;
+    text-decoration: none;
+}
+
+a:visited {
+    color: black; /* text-decoration: line-through;*/
+}
+
+　　 a:active {
+    color: white;
+    text-decoration: underline;
+}
+
+　 a:hover {
+    color: Red;
+    text-decoration: none;
+    background-color: black;
+}
+/*搜索位置*/
+.pg_table {
+    width: 100%;
+    text-align: left;
+    word-spacing: 0px;
+}
+
+    .pg_table tr td select {
+        width: 160px;
+    }
+
+    .pg_table tr td {
+        nowrap: nowrap;
+    }
+
+.pg_talbe_head {
+    white-space: nowrap;
+    text-align: right;
+    width: 100px;
+    height: 22px;
+}
+
+.pg_talbe_content {
+    white-space: nowrap;
+    text-align: center;
+    width: 100px;
+    height: 22px;
+}
+
+.pg_talbe_text {
+    text-align: center;
+    width: 250px;
+    height: 22px;
+}
+
+.pg_talbe_content select {
+    width: 155px;
+    height: 22px;
+}
+
+.pg_talbe_content input {
+    width: 165px;
+}
+
+/*loading显示*/
+.progressBar {
+    display: none;
+    width: 200px;
+    height: 30px;
+    top: 40%;
+    left: 40%;
+    margin-left: -74px;
+    margin-top: -14px;
+    padding: 5px 10px 0px 10px;
+    text-align: left;
+    line-height: 27px;
+    font-weight: bold;
+    position: absolute;
+    z-index: 101;
+    color: gray;
+    background-color: White;
+    border: 1px solid gray;
+}
+/*分页*/
+.pages {
+    margin-bottom: 10px;
+}
+
+    .pages a {
+        padding-bottom: 2px;
+        padding-top: 2px;
+        padding-left: 5px;
+        padding-right: 5px;
+    }
+
+        .pages a.current {
+            font-weight: bold;
+        }
+
+    .pages a {
+        /*border: #014DA2 solid 1px;*/
+        border: 1px solid #B1CB83;
+        font-size: 14px;
+    }
+
+        .pages a.current {
+            background: #014DA2;
+            background: green;
+            color: #ffffff; /* background-color: #EAFCD5;*/
+        }
+
+/* Clear Fix 通用浮动清除类*/
+
+.clearfix:after {
+    content: ".";
+    display: block;
+    height: 0;
+    clear: both;
+    visibility: hidden;
+}
+
+.clearfix {
+    display: inline-block;
+}
+/* Hide from IE Mac */
+.clearfix {
+    display: block;
+}
+/* End hide from IE Mac */
+/* end of clearfix */
+.hidden_true {
+    display: none;
+}
+
+.hidden_false {
+    display: block;
+}
+
+.selector {
+    font-family: "Microsoft YaHei",微软雅黑, "MicrosoftJhengHei",华文细黑,STHeiti,MingLiu;
+}
+
+.submit {
+    background: url(../Img/button_submit.gif) repeat-x #e3f1fa; /* border: 1px solid #aed0ea;*/
+    border: 1px solid #ABBAD0;
+    padding: 0px 10px;
+    height: 24px;
+    line-height: 24px;
+    color: #3d80b3;
+    cursor: pointer;
+}
+
+    .submit:hover {
+        color: #1e395b;
+        background: #fee287 url('../Img/buttonHover1.png') repeat-x left top;
+        border: 1px solid #c2762b;
+    }
+
+.tr_hover_col td {
+    background-color: #EAEAEA;
+}
+
+
+/* -- Button -- */
+.button {
+    background: url(../Img/button_new.png) repeat-x left top; /* border: 1px solid #aed0ea;*/
+    border: 1px solid #B1CB83;
+    padding: 0px 10px;
+    height: 24px;
+    line-height: 24px;
+    color: black;
+    cursor: pointer;
+}
+
+    .button:hover {
+        color: #1e395b;
+        background: #fee287 url('../Img/buttonHover1.png') repeat-x left top;
+        border: 1px solid #c2762b;
+    }
+/*编辑*/
+.edit {
+    cursor: pointer;
+}
+
+    .edit:hover {
+        color: Red;
+    }
+
+/*表格样式*/
+table.tablesorter {
+    font-family: arial; /*background-color: #CDCDCD;*/
+    background-color: #C0DE98;
+    margin: 10px 0pt 15px;
+    font-size: 10pt;
+    width: 100%;
+    text-align: center;
+}
+
+.th {
+    color: black;
+    font-size: 10pt;
+    padding: 4px;
+    font-weight: 300;
+    background: url(../Img/tab_14.gif) repeat-x left top; /* border: 1px solid #aed0ea;*/
+    padding: 0px 10px;
+    height: 24px;
+    line-height: 24px;
+}
+
+table.tablesorter thead tr th {
+    color: black;
+    font-size: 10pt;
+    padding: 4px;
+    font-weight: 300;
+    background: url(../Img/tab_14.gif) repeat-x left top; /* border: 1px solid #aed0ea;*/
+    padding: 0px 10px;
+    height: 24px;
+    line-height: 24px;
+    cursor: pointer;
+}
+
+table.tablesorter thead tr td {
+    color: black;
+    font-size: 10pt;
+    padding: 4px;
+    font-weight: 300;
+    background: url(../Img/tab_14.gif) repeat-x left top; /* border: 1px solid #aed0ea;*/
+    padding: 0px 10px;
+    height: 24px;
+    line-height: 24px;
+}
+
+table.tablesorter tbody td {
+    color: #3D3D3D;
+    padding: 3px;
+    background-color: #FFF;
+    vertical-align: inherit;
+}
+
+table.tablesorter tfoot td {
+    padding: 3px;
+}
+
+table.tablesorter tbody tr.odd td {
+    /*background-color: #F0F0F6;*/
+    background-color: #EAFCD5;
+}
+
+table.tablesorter tbody tr {
+    cursor: pointer;
+}
+
+
+
+.outerDiv {
+    border-radius: 5px;
+    border: 1px solid #B3D08F;
+    margin-top: 2px;
+    margin-right: 10px;
+    background-color: #F3FFE3;
+}
+
+.pg_table tr td text {
+    width: 160px;
+}
+
+.border {
+    background-color: Black;
+    width: 100%;
+    height: 100%;
+    font-size: 14px;
+}
+
+    .border tr td {
+        background-color: White;
+    }

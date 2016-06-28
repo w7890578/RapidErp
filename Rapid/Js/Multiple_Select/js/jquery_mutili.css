@@ -1,0 +1,23 @@
+﻿.checks_div {
+    position: relative;
+    width: 200px;
+}
+
+.checks_div_select {
+    width: 100%;
+    background-color: #FDFDFD;
+    border: 1px solid #E8EEEF;
+    font-family: 'Verdana', '宋体';
+    font-size: 15px;
+    position: absolute;
+    left: 2px;
+    top: 25px;
+}
+
+.checks_div_input {
+    width: 200px;
+}
+
+.checks_div_select div {
+    margin: 5px;
+}

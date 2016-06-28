@@ -1,0 +1,35 @@
+﻿<%@ Page Language="C#" AutoEventWireup="true" CodeBehind="ImpRejectsProductList.aspx.cs"
+    Inherits="Rapid.ProduceManager.ImpRejectsProductList" %>
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head id="Head1" runat="server">
+    <title>导入不合格品信息</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <base target="_self" />
+
+    <script src="../Js/jquery-1.10.2.min.js" type="text/javascript"></script>
+
+    <script type="text/javascript">
+        function Set() {
+            $("#lbMsg").html("正在导入！请稍等......");
+            return true;
+        }
+    </script>
+
+</head>
+<body>
+    <form id="form1" runat="server">
+    <div style="text-align: center; font-size: 23px;">
+        不合格品Excel导入</div>
+    <div>
+        Excel文件:
+        <asp:FileUpload ID="FU_Excel" runat="server" />&nbsp;&nbsp;&nbsp;<asp:Button ID="btnUpload"
+            runat="server" Text=" 导 入 " OnClick="btnUpload_Click" OnClientClick="return Set()" />
+        &nbsp;&nbsp;<a href="RejectsProductList.aspx">返回列表</a>
+        <br />
+        <asp:Label ID="lbMsg" runat="server" Text="" Style="color: Red;"></asp:Label>
+    </div>
+    </form>
+</body>
+</html>

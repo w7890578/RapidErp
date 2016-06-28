@@ -1,0 +1,46 @@
+---------------------------------------
+日志时间:2016-01-04 22:05:27
+列名 'OrderType' 无效。
+服务器名称:.,数据库名称:RapidErp
+SQL命令:
+				        INSERT INTO [dbo].[OrderCheck]
+				           	(
+			    	            [Id],
+	            	            [WarehouseNumber],
+	            	            [MaterialNumber],
+	            	            [TakeQty],
+	            	            [TakeDateTime],
+	            	            [Status],
+	            	            [TakeUserId],
+	            	            [Remark],
+	            	            [CreateTime],
+	            	            [OrderType]
+	              			)
+				     	VALUES
+				           (
+					            @Id,
+	            	            @WarehouseNumber,
+	            	            @MaterialNumber,
+	            	            @TakeQty,
+	            	            @TakeDateTime,
+	            	            @Status,
+	            	            @TakeUserId,
+	            	            @Remark,
+	            	            @CreateTime,
+	            	            @OrderType
+	            			)
+        			
+参数:
+@Id=12d9e605-1357-40d6-a5f3-e4015fbbf26c
+@WarehouseNumber=YCLRK20151225113055
+@MaterialNumber=R1C00000000233-2-A
+@TakeQty=2
+@TakeDateTime=2016/1/4 0:00:00
+@Status=合格
+@TakeUserId=ccm
+@Remark=撒地方
+@CreateTime=2016/1/4 22:05:27
+@OrderType=采购入库
+
+---------------------------------------
+

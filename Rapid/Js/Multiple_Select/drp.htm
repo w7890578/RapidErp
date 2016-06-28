@@ -1,0 +1,24 @@
+<html>
+<head>
+    <script src="http://libs.baidu.com/jquery/2.1.4/jquery.min.js"></script>
+    <link href="js/jquery_mutili.css" rel="stylesheet" />
+    <script src="js/jquery_mutili.js"></script>
+
+    <script language="javascript">
+        $(document).ready(function () {
+            var options = [
+            { "text": "第一个选择项", "value": "1" },
+            { "text": "第二个选择项", "value": "2" },
+            { "text": "第三个选择项", "value": "3" }
+            ];
+            $("#test_div").checks_select("test_div", options);
+        });
+    </script> 
+</head>
+<body>
+    <div class="checks_div">
+        <input type="text" id="test_div" readonly="readonly" class="checks_div_input" />
+        <div></div>
+    </div>
+</body>
+</html> 

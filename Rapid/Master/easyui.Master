@@ -1,0 +1,26 @@
+﻿<%@ Master Language="C#" AutoEventWireup="true" CodeBehind="easyui.master.cs" Inherits="Rapid.Master.easyui" %>
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head runat="server">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title></title>
+    <link href='../Js/Plug/themes/bootstrap/easyui.css' rel='stylesheet' id='linkThemes' />
+    <link href="../Js/Plug/demo/demo.css" rel="stylesheet" />
+    <link href="../Js/Plug/themes/icon.css" rel="stylesheet" />
+    <script src="../Js/Plug/jquery.min.js"></script>
+    <script src="../Js/Plug/jquery.easyui.min.js"></script>
+    <script src="../Js/Plug/locale/easyui-lang-zh_CN.js"></script>
+    <asp:ContentPlaceHolder ID="head" runat="server">
+    </asp:ContentPlaceHolder>
+</head>
+<body>
+
+    <div>
+        <asp:ContentPlaceHolder ID="ContentPlaceHolder1" runat="server">
+        </asp:ContentPlaceHolder>
+    </div>
+
+</body>
+</html>
