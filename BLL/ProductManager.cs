@@ -70,7 +70,13 @@ select distinct CustomerProductNumber from ProductCustomerProperty ";
         /// <returns></returns>
         public static bool HasBOM(string productNumber, string version)
         {
-            string sql = string.Format("  select COUNT(*) from BOMInfo where ProductNumber ='{0}' and Version ='{1}'", productNumber, version);
+            string sql = string.Format(@"  
+select SUM(number) from(
+select COUNT(0) as number from BOMInfo where ProductNumber = '{0}' and Version = '{1}'
+union all
+select COUNT(0) from PackageAndProductRelation where PackageNumber = '{0}'
+)t
+                ", productNumber, version);
             return SqlHelper.GetScalar(sql).Equals("0") ? false : true;
         }
 
