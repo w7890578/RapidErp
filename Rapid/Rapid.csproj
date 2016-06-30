@@ -3323,6 +3323,7 @@
     </Compile>
     <Compile Include="StoreroomManager\StockInventoryLogDetail.aspx.cs">
       <DependentUpon>StockInventoryLogDetail.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
     </Compile>
     <Compile Include="StoreroomManager\StockInventoryLogDetail.aspx.designer.cs">
       <DependentUpon>StockInventoryLogDetail.aspx</DependentUpon>
