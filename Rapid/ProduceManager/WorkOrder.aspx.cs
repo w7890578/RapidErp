@@ -123,7 +123,8 @@ namespace Rapid.ProduceManager
             string error = string.Empty;
             sql = string.Format("delete T_WorkOrder_Temp where user_id='{0}'", userId);
             sqls.Add(sql);
-            sql = string.Format(@"insert into T_WorkOrder_Temp(id,Qty,User_id)
+            sql = string.Format(@"
+insert into T_WorkOrder_Temp(id,Qty,User_id)
 select  t.Id,t.未交货数量-t.库存数量 -isnull(noAddQty.qty,0)-isnull(t.在制品数量,0) as 需要生产数量,'{1}' from ({0})t 
 left join ( select ProductNumber,Version,SUM(qty)  as qty from ProductWarehouseLogDetail where WarehouseNumber in (
  select WarehouseNumber from ProductWarehouseLog where ChangeDirection='入库' and ISNULL(CheckTime,'')=''

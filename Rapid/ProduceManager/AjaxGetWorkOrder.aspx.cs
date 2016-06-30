@@ -52,9 +52,9 @@ t.版本,
 t.库存数量, 
 t.未交货数量,
 isnull(ps.StockQty,0) as 实时库存数量,
-isnull(producting.productQty,0)  as 在制品数量,
+isnull( t.在制品数量,0),
 isnull(noAddQty.qty,0) as 未入库数量,
-t.未交货数量-t.库存数量-isnull(noAddQty.qty,0)-isnull(producting.productQty,0) as 需要生产数量,
+t.未交货数量-t.库存数量-isnull(noAddQty.qty,0)-isnull( t.在制品数量,0) as 需要生产数量,
 twt.Qty as 实际生产数量,
 t.交期,
 t.行号 
@@ -62,17 +62,13 @@ from
 ({0}) t 
 left join SaleOder so on so.OdersNumber=t.销售订单号 
 left join T_WorkOrder_Temp twt on twt.Id=t.Id
-left join ( select  ProductNumber,Version   , 
-case when 
-sum(Qty)-SUM(StorageQty)<0 then 0 else sum(Qty)-SUM(StorageQty) end as productQty
- from  ProductPlanDetail
- group by ProductNumber,Version  ) producting   on t.产品编号=producting.ProductNumber and t.版本=producting.Version
 left join ( select ProductNumber,Version,SUM(qty)  as qty from ProductWarehouseLogDetail where WarehouseNumber in (
  select WarehouseNumber from ProductWarehouseLog where ChangeDirection='入库' and ISNULL(CheckTime,'')=''
  ) group by ProductNumber,Version) 
 noAddQty on t.产品编号=noAddQty.ProductNumber and t.版本=noAddQty.Version
 left join ProductStock ps on ps.ProductNumber=t.产品编号 and ps.Version=t.版本
-{3} and  t.未交货数量-t.库存数量-isnull(noAddQty.qty,0)-isnull(producting.productQty,0)>0
+{3} 
+--and  t.未交货数量-t.库存数量-isnull(noAddQty.qty,0)-t.在制品数量>0
 order by {1} {2}", tempSql, sortName, sortDirection, condition);
             int columCount = 0;
             DataTable dt = SqlHelper.GetTable(sql);

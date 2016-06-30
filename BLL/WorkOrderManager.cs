@@ -12,25 +12,207 @@ namespace BLL
     /// </summary>
     public class WorkOrderManager
     {
+        public static Dictionary<string, int> GetProductingQty()
+        {
+            Dictionary<string, int> productingQty = new Dictionary<string, int>();
+            string sql = @"
+select  ProductNumber,Version ,
+case when 
+sum(Qty)-SUM(StorageQty)<0 then 0 
+else sum(Qty)-SUM(StorageQty) end as productQty
+ from  ProductPlanDetail
+ group by ProductNumber,Version  
+";
+            foreach (DataRow dr in SqlHelper.GetTable(sql).Rows)
+            {
+                productingQty.Add(dr["ProductNumber"] + "|" + dr["Version"], Convert.ToInt32(dr["productQty"]));
+            }
+            return productingQty;
+        }
+
+        public static Dictionary<string, int> GetNoAddQty()
+        {
+            Dictionary<string, int> noAddQty = new Dictionary<string, int>();
+            string sql = @"
+                select ProductNumber, Version, SUM(qty) as qty from ProductWarehouseLogDetail where WarehouseNumber in (
+ select WarehouseNumber from ProductWarehouseLog where ChangeDirection = '入库' and ISNULL(CheckTime, '') = ''
+ ) group by ProductNumber,Version
+                ";
+            foreach (DataRow dr in SqlHelper.GetTable(sql).Rows)
+            {
+                noAddQty.Add(dr["ProductNumber"] + "|" + dr["Version"], Convert.ToInt32(dr["qty"]));
+            }
+            return noAddQty;
+        }
+
+        public static Dictionary<string, int> GetStockQty()
+        {
+            Dictionary<string, int> stockQty = new Dictionary<string, int>();
+            string sql = @"
+                select * from V_ProductStock_Sum
+                ";
+            foreach (DataRow dr in SqlHelper.GetTable(sql).Rows)
+            {
+                stockQty.Add(dr["ProductNumber"] + "|" + dr["Version"], Convert.ToInt32(dr["库存数量"]));
+            }
+            return stockQty;
+        }
+
+        public static Dictionary<string, int> GetSumQty()
+        {
+            Dictionary<string, int> sumQty = new Dictionary<string, int>();
+            string sql = @"
+with A as (
+select  ProductNumber,Version ,
+case when 
+sum(Qty)-SUM(StorageQty)<0 then 0 
+else sum(Qty)-SUM(StorageQty) end as  Qty
+ from  ProductPlanDetail
+ group by ProductNumber,Version 
+ ),
+ B as (
+ select ProductNumber, Version, SUM(qty) as Qty from ProductWarehouseLogDetail where WarehouseNumber in (
+ select WarehouseNumber from ProductWarehouseLog where ChangeDirection = '入库' and ISNULL(CheckTime, '') = ''
+ ) group by ProductNumber,Version
+ ),
+ C as 
+ (select ProductNumber,Version,库存数量 as Qty from V_ProductStock_Sum) 
+
+ select p.ProductNumber,p.Version, 
+ isnull(A.Qty,0) as 在制品数量, 
+  isnull(B.Qty,0) as 未入库数量, 
+   isnull(C.Qty,0) as 库存数量 ,
+   isnull(A.Qty,0) +isnull(B.Qty,0)+isnull(C.Qty,0) as 总数量
+ from   Product  p 
+ left join A on A.ProductNumber=p.ProductNumber and A.Version=p.Version
+ left join B on B.ProductNumber=p.ProductNumber and B.Version=p.Version
+ left join C on C.ProductNumber=p.ProductNumber and C.Version=p.Version
+ 
+";
+            foreach (DataRow dr in SqlHelper.GetTable(sql).Rows)
+            {
+                sumQty.Add(dr["ProductNumber"] + "|" + dr["Version"], Convert.ToInt32(dr["总数量"]));
+            }
+            return sumQty;
+
+        }
+
+        public static string GetWorkOrderSql()
+        {
+            var productingQtys = GetProductingQty();
+            var noAddQtys = GetNoAddQty();
+            var stockQtys = GetStockQty();
+            var sumQtys = GetSumQty();
+
+            string sql = @"
+select *  from  V_MachineOderDetail_Product_Nofinesfinished_Detail  vpnd
+where vpnd.NonDeliveryQty>0
+order by vpnd.OdersNumber asc, vpnd.LeadTime  asc
+";
+            DataTable dtMain = SqlHelper.GetTable(sql);
+            dtMain.Columns.Add(new DataColumn("ProductingQty", typeof(int)));
+            dtMain.Columns.Add(new DataColumn("NoAddQty", typeof(int)));
+            dtMain.Columns.Add(new DataColumn("StockQty", typeof(int)));
+            dtMain.Columns.Add(new DataColumn("NeedProductQty", typeof(int)));
+            dtMain.Columns.Add(new DataColumn("SumQty", typeof(int)));
+
+            string key = string.Empty;
+            StringBuilder longSql = new StringBuilder();
+
+            foreach (DataRow dr in dtMain.Rows)
+            {
+                key = dr["ProductNumber"] + "|" + dr["Version"];
+
+                if (productingQtys.ContainsKey(key))
+                {
+                    dr["ProductingQty"] = productingQtys[key];
+                }
+                else
+                {
+                    dr["ProductingQty"] = 0;
+                }
+                if (noAddQtys.ContainsKey(key))
+                {
+                    dr["NoAddQty"] = noAddQtys[key];
+                }
+                else
+                {
+                    dr["NoAddQty"] = 0;
+                }
+                if (stockQtys.ContainsKey(key))
+                {
+                    dr["StockQty"] = stockQtys[key];
+                }
+                else
+                {
+                    dr["StockQty"] = 0;
+                }
+                if (sumQtys.ContainsKey(key))
+                {
+                    dr["SumQty"] = sumQtys[key];
+                }
+                else
+                {
+                    dr["SumQty"] = 0;
+                }
+
+                //库存+在制+未入库-未交数量=需要生产数量
+                dr["NeedProductQty"] = Convert.ToInt32(dr["NonDeliveryQty"]) - Convert.ToInt32(dr["SumQty"]);
+
+                int needProductQty = Convert.ToInt32(dr["NeedProductQty"]);
+
+                if (needProductQty > 0) //需要生产
+                {
+                    sumQtys[key] = 0;
+                }
+                else //不需要生产
+                {
+                    sumQtys[key] = sumQtys[key] - Math.Abs(needProductQty);
+                }
+                longSql.AppendFormat(@"union all
+select '{0}' as 销售订单号, '{1}' as 产品编号, '{2}' as 版本,{3} as 订单数量,{4} as 已交货数量,
+{5} as 未交货数量,{6} as 库存数量,{7} as 在制品数量,{8} as 需要生产数量,'{9}' as 交期,'{10}' as 行号,'{11}' as 客户产品编号
+                    ", dr["OdersNumber"], dr["ProductNumber"], dr["Version"]
+                    , dr["Qty"], dr["DeliveryQty"], dr["NonDeliveryQty"], dr["StockQty"], dr["ProductingQty"]
+                    , dr["NeedProductQty"], dr["LeadTime"], dr["RowNumber"],dr["CustomerProductNumber"]);
+            }
+            return longSql.ToString().TrimStart(new char[] { 'u', 'n', 'i', 'o', 'n', ' ', 'a', 'l', 'l' });
+        }
+
+
+
         /// <summary>
         /// 获得未完成的加工销售订单的明细 sql
         /// </summary>
         public static string GetOrderNofinesfinishedDetail()
         {
+            return GetWorkOrderSql();
+
             string sql = " select * from V_MachineOderDetail_Product_Nofinesfinished ";
             int stockQty = 0;//库存数量
             string tempstockQty = string.Empty; //库存数量临时编号 
             int poorResult = 0;//临时变量(计算结果=库存数量+在制品数量-未交数量)
             int workInProgressQty = 0;//产品在制数量
             int needToProduceQty = 0;//需要生产的数量
+            Dictionary<string, int> productingQty = GetProductingQty();
+
             StringBuilder longSql = new StringBuilder();
             DataTable dtProduct = SqlHelper.GetTable(sql); //产品集合
+
+
+
+
+
+
+
+
             foreach (DataRow drProduct in dtProduct.Rows) //获取未完成订单内的产品、版本
             {
                 sql = string.Format("select isnull(库存数量,0)  from  V_ProductStock_Sum where ProductNumber ='{0}' and Version ='{1}'", drProduct["ProductNumber"], drProduct["Version"]);
                 tempstockQty = SqlHelper.GetScalar(sql);
                 stockQty = string.IsNullOrEmpty(tempstockQty) ? 0 : Convert.ToInt32(tempstockQty); //某产品的库存数量
-                sql = string.Format(@"select *,isnull( producting.productQty,0) as 在制品数量 from  V_MachineOderDetail_Product_Nofinesfinished_Detail
+                sql = string.Format(@"
+select *,isnull( producting.productQty,0) as 在制品数量 from  V_MachineOderDetail_Product_Nofinesfinished_Detail
   vpnd left join  V_Summary_ProductPlanDetail_Qty ppd on ppd.OrdersNumber =vpnd.OdersNumber 
  and vpnd.ProductNumber =ppd.ProductNumber and vpnd.Version =ppd.Version 
  and vpnd.RowNumber =ppd.RowNumber 
@@ -45,17 +227,37 @@ where vpnd.ProductNumber ='{0}' and vpnd.Version ='{1}'  order by vpnd.OdersNumb
                 DataTable dt = SqlHelper.GetTable(sql); //某一个产品的集合
                 foreach (DataRow dr in dt.Rows) //遍历某一个产品
                 {
-                    workInProgressQty = Convert.ToInt32(dr["在制品数量"]);
+                    //workInProgressQty = Convert.ToInt32(dr["在制品数量"]);
+                    int usedProgressQty = 0;
+                    if (productingQty.ContainsKey(dr["ProductNumber"] + "|" + dr["Version"]))
+                    {
+                        workInProgressQty = productingQty[dr["ProductNumber"] + "|" + dr["Version"]];
+                    }
+                    else
+                    {
+                        workInProgressQty = 0;
+                    }
+
                     poorResult = stockQty + workInProgressQty - Convert.ToInt32(dr["NonDeliveryQty"]);
                     if (poorResult >= 0)//满足
                     {
                         needToProduceQty = 0;
+                        //a+未知数-b=0  0-a+b
+                        //使用了的在制品数量 
+                        usedProgressQty = 0 - stockQty + Convert.ToInt32(dr["NonDeliveryQty"]);
                     }
                     else
                     {
+                        usedProgressQty = workInProgressQty;
                         //不满足的话需要生产的数量=未交-库存-在制品
                         needToProduceQty = Convert.ToInt32(dr["NonDeliveryQty"]) - stockQty - workInProgressQty;
                     }
+                    if (productingQty.ContainsKey(dr["ProductNumber"] + "|" + dr["Version"]))
+                    {
+                        productingQty[dr["ProductNumber"] + "|" + dr["Version"]] = productingQty[dr["ProductNumber"] + "|" + dr["Version"]] - usedProgressQty;
+
+                    }
+
                     longSql.AppendFormat(@"union all
 select '{0}' as 销售订单号 ,'{1}' as 产品编号,'{2}' as 版本,{3} as 订单数量,{4} as 已交货数量,
 {5} as 未交货数量,{6} as 库存数量,{7} as 在制品数量,{8} as 需要生产数量,'{9}' as 交期,'{10}' as 行号,'{11}' as 客户产品编号
@@ -314,13 +516,17 @@ and  Team ='{6}'  order by SN asc", userId, dr["OrdersNumber"], dr["ProductNumbe
                 {
                     switch (i)
                     {
-                        case 0: workSnOneNumber = dt.Rows[0]["WorkSnNumber"].ToString();
+                        case 0:
+                            workSnOneNumber = dt.Rows[0]["WorkSnNumber"].ToString();
                             break;
-                        case 1: workSnTwoNumber = dt.Rows[1]["WorkSnNumber"].ToString();
+                        case 1:
+                            workSnTwoNumber = dt.Rows[1]["WorkSnNumber"].ToString();
                             break;
-                        case 2: workSnThreeNumber = dt.Rows[2]["WorkSnNumber"].ToString();
+                        case 2:
+                            workSnThreeNumber = dt.Rows[2]["WorkSnNumber"].ToString();
                             break;
-                        case 3: workSnFourNumber = dt.Rows[3]["WorkSnNumber"].ToString();
+                        case 3:
+                            workSnFourNumber = dt.Rows[3]["WorkSnNumber"].ToString();
                             break;
                     }
                 }
