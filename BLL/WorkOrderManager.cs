@@ -106,7 +106,7 @@ else sum(Qty)-SUM(StorageQty) end as  Qty
 
             string sql = @"
 select *  from  V_MachineOderDetail_Product_Nofinesfinished_Detail  vpnd
-where vpnd.NonDeliveryQty>0
+where vpnd.NonDeliveryQty>0  
 order by vpnd.OdersNumber asc, vpnd.LeadTime  asc
 ";
             DataTable dtMain = SqlHelper.GetTable(sql);
@@ -167,7 +167,7 @@ order by vpnd.OdersNumber asc, vpnd.LeadTime  asc
                 }
                 else //不需要生产
                 {
-                    sumQtys[key] = sumQtys[key] - Math.Abs(needProductQty);
+                    sumQtys[key] = sumQtys[key] - Math.Abs(Convert.ToInt32(dr["NonDeliveryQty"]));
                 }
                 longSql.AppendFormat(@"union all
 select '{0}' as 销售订单号, '{1}' as 产品编号, '{2}' as 版本,{3} as 订单数量,{4} as 已交货数量,

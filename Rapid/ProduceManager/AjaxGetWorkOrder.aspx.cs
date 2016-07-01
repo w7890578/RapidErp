@@ -54,7 +54,7 @@ t.未交货数量,
 isnull(ps.StockQty,0) as 实时库存数量,
 isnull( t.在制品数量,0),
 isnull(noAddQty.qty,0) as 未入库数量,
-t.未交货数量-t.库存数量-isnull(noAddQty.qty,0)-isnull( t.在制品数量,0) as 需要生产数量,
+t.需要生产数量,
 twt.Qty as 实际生产数量,
 t.交期,
 t.行号 
@@ -106,26 +106,26 @@ order by {1} {2}", tempSql, sortName, sortDirection, condition);
                     //}
                     //else
                     //{
-                        if (!dt.Columns[i].ColumnName.Equals("Id"))
+                    if (!dt.Columns[i].ColumnName.Equals("Id"))
+                    {
+                        if (dt.Columns[i].ColumnName.Equals("客户产品编号"))
                         {
-                            if (dt.Columns[i].ColumnName.Equals("客户产品编号"))
-                            {
-                                color = HasGX(dr["产品编号"].ToString(), dr["版本"].ToString()) ? "black" : "red";
-                                titileName = HasGX(dr["产品编号"].ToString(), dr["版本"].ToString()) ? "" : "title='该产品没有工序信息'";
-                                tdTextTemp += string.Format("<td><span style='color:{1};' {2}>{0}</span> </td>", dr[i], color, titileName);
-                            }
-                            else if (dt.Columns[i].ColumnName.Equals("产品编号"))
-                            {
-                                color = HasBOM(dr["产品编号"].ToString(), dr["版本"].ToString()) ? "black" : "red";
-                                titileName = HasBOM(dr["产品编号"].ToString(), dr["版本"].ToString()) ? "" : "title='该产品没有BOM信息'";
-                                tdTextTemp += string.Format("<td><span style='color:{1};' {2}>{0}</span> </td>", dr[i], color, titileName);
-
-                            }
-                            else
-                            {
-                                tdTextTemp += string.Format("<td>{0}</td>", dr[i]);
-                            }
+                            color = HasGX(dr["产品编号"].ToString(), dr["版本"].ToString()) ? "black" : "red";
+                            titileName = HasGX(dr["产品编号"].ToString(), dr["版本"].ToString()) ? "" : "title='该产品没有工序信息'";
+                            tdTextTemp += string.Format("<td><span style='color:{1};' {2}>{0}</span> </td>", dr[i], color, titileName);
                         }
+                        else if (dt.Columns[i].ColumnName.Equals("产品编号"))
+                        {
+                            color = HasBOM(dr["产品编号"].ToString(), dr["版本"].ToString()) ? "black" : "red";
+                            titileName = HasBOM(dr["产品编号"].ToString(), dr["版本"].ToString()) ? "" : "title='该产品没有BOM信息'";
+                            tdTextTemp += string.Format("<td><span style='color:{1};' {2}>{0}</span> </td>", dr[i], color, titileName);
+
+                        }
+                        else
+                        {
+                            tdTextTemp += string.Format("<td>{0}</td>", dr[i]);
+                        }
+                    }
                     //}
                 }
                 //bool isQueLiao = GetIsQueLiao(dr["产品编号"].ToString(), dr["版本"].ToString(), dr["实际生产数量"].ToString());
