@@ -31,7 +31,7 @@ namespace Rapid.ProduceManager
             t.销售订单号,t.产品编号,t.版本,
             case when t.未交货数量 <0 then 0 else t.未交货数量 end as 未交货数量 ,
             t.库存数量,t.在制品数量,t.需要生产数量,t.交期,t.行号,t.客户产品编号 from ({0})t where 1=1",
-WorkOrderManager.GetOrderNofinesfinishedDetail(), userId);
+WorkOrderManager.GetWorkOrderSql(), userId);
 
             List<string> sqls = new List<string>();
             string error = string.Empty;
@@ -62,41 +62,51 @@ WorkOrderManager.GetOrderNofinesfinishedDetail(), userId);
             string condition = ToolManager.GetQueryString("condition");
             string userId = ToolCode.Tool.GetUser().UserNumber;
 
-            string tempSql = string.Format(@"select t.销售订单号+'^'+t.产品编号+'^'+t.版本+'^'+t.交期+'^'+t.行号+'^'+'{1}' as Id, t.销售订单号,t.产品编号,t.版本,
-         case when  t.未交货数量 <0 then 0 else t.未交货数量  end as 未交货数量 
-
-,t.库存数量,t.在制品数量,t.需要生产数量,t.交期,t.行号,t.客户产品编号 from ({0})t where 1=1", WorkOrderManager.GetOrderNofinesfinishedDetail(), userId);
+            string tempSql = string.Format(@"
+                    select 
+                        t.销售订单号+'^'+t.产品编号+'^'+t.版本+'^'+t.交期+'^'+t.行号+'^'+'{1}' as Id, 
+                        t.销售订单号,
+                        t.产品编号,
+                        t.版本,
+                        case when  t.未交货数量 <0 then 0 else t.未交货数量  end as 未交货数量 ,
+                        t.库存数量,
+                        t.在制品数量,
+                        t.未入库数量,
+                        t.送货单未确认数量,
+                        t.需要生产数量,
+                        t.交期,
+                        t.行号,
+                        t.客户产品编号 
+                    from ({0})t 
+                    where 1=1"
+             , WorkOrderManager.GetWorkOrderSql(), userId);
             
             string sql = string.Format(@" 
-select 
-t.Id,
-t.销售订单号,
-so.CustomerOrderNumber as 客户采购订单号,
-so.OdersType as 订单类型,
-t.客户产品编号,
-t.产品编号,
-t.版本,
-t.库存数量, 
-t.未交货数量,
-isnull(ps.StockQty,0) as 实时库存数量,
-isnull( t.在制品数量,0),
-isnull(noAddQty.qty,0) as 未入库数量,
-t.需要生产数量,
-twt.Qty as 实际生产数量,
-t.交期,
-t.行号 
-from 
-({0}) t 
-left join SaleOder so on so.OdersNumber=t.销售订单号 
-left join T_WorkOrder_Temp twt on twt.Id=t.Id
-left join ( select ProductNumber,Version,SUM(qty)  as qty from ProductWarehouseLogDetail where WarehouseNumber in (
- select WarehouseNumber from ProductWarehouseLog where ChangeDirection='入库' and ISNULL(CheckTime,'')=''
- ) group by ProductNumber,Version) 
-noAddQty on t.产品编号=noAddQty.ProductNumber and t.版本=noAddQty.Version
-left join ProductStock ps on ps.ProductNumber=t.产品编号 and ps.Version=t.版本
-{3} 
---and  t.未交货数量-t.库存数量-isnull(noAddQty.qty,0)-t.在制品数量>0
-order by {1} {2}", tempSql, sortName, sortDirection, condition);
+                select 
+                        t.Id,
+                        t.销售订单号,
+                        so.CustomerOrderNumber as 客户采购订单号,
+                        so.OdersType as 订单类型,
+                        t.客户产品编号,
+                        t.产品编号,
+                        t.版本, 
+                        t.未交货数量,
+                        t.库存数量 as 实时库存数量,
+                        isnull( t.在制品数量,0),
+                        t.未入库数量,
+                        t.送货单未确认数量,
+                        t.需要生产数量,
+                        twt.Qty as 实际生产数量,
+                        t.交期,
+                        t.行号 
+                from 
+                ({0}) t 
+                left join SaleOder so on so.OdersNumber=t.销售订单号 
+                left join T_WorkOrder_Temp twt on twt.Id=t.Id 
+                {3} 
+                --and  t.需要生产数量>0
+                order by {1} {2}"
+                , tempSql, sortName, sortDirection, condition);
             int columCount = 0;
             DataTable dt = SqlHelper.GetTable(sql);
 

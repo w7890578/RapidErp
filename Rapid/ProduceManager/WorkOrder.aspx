@@ -869,15 +869,15 @@
                     </th>
                     <th nowrap sortname='版本'>版本<span><img src="../Img/bg.gif" id="Img3" /></span>
                     </th>
-                    <th nowrap sortname='库存数量'>库存数量<span><img src="../Img/bg.gif" id="Img5" /></span>
-                    </th>
+                  
                     <th nowrap sortname='未交货数量'>未交货数量<span><img src="../Img/bg.gif" id="Img4" /></span>
-                    </th>
-
+                    </th> 
                     <td nowrap>实时库存数量</td>
                     <th nowrap sortname='在制品数量'>在制品数量<span><img src="../Img/bg.gif" id="Img6" /></span>
                     </th>
                     <th nowrap sortname='未入库数量'>未入库数量<span><img src="../Img/bg.gif" id="Img7" /></span>
+                    </th>
+                     <th nowrap sortname='送货单未确认数量'>送货单未确认数量<span><img src="../Img/bg.gif" id="Img7" /></span>
                     </th>
                     <th nowrap sortname='需要生产数量'>需要生产数量<span><img src="../Img/bg.gif" id="Img8" /></span>
                     </th>
