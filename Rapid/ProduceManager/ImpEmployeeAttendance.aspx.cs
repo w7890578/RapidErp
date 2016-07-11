@@ -46,13 +46,13 @@ namespace Rapid.ProduceManager
             //List<ExaminationLog> examinationlogs = new List<ExaminationLog>();
             foreach (DataRow dr in ds.Tables[0].Rows)
             {
-                double ycqDay = dr["应出勤天"].ToString().Equals("") ? 0 : Convert.ToDouble(dr["应出勤天"]);
-                double bjDay = dr["病假天"].ToString().Equals("") ? 0 : Convert.ToDouble(dr["病假天"]);
-                double pssjDay = dr["平日事假天数"].ToString().Equals("") ? 0 : Convert.ToDouble(dr["平日事假天数"]);
-                double psjbDay = dr["平时加班(天)"].ToString().Equals("") ? 0 : Convert.ToDouble(dr["平时加班(天)"]);
+                double ycqDay = dr["应出勤天"].ToString().Trim().Equals("") ? 0 : Convert.ToDouble(dr["应出勤天"]);
+                double bjDay = dr["病假天"].ToString().Trim().Equals("") ? 0 : Convert.ToDouble(dr["病假天"]);
+                double pssjDay = dr["平日事假天数"].ToString().Trim().Equals("") ? 0 : Convert.ToDouble(dr["平日事假天数"]);
+                double psjbDay = dr["平时加班(天)"].ToString().Trim().Equals("") ? 0 : Convert.ToDouble(dr["平时加班(天)"]);
                 string actallDay = (ycqDay - bjDay - pssjDay + psjbDay).ToString();
-                double Beforemonthendshengyu = dr["截至上月底年假剩余天数"].ToString().Equals("") ? 0 : Convert.ToDouble(dr["截至上月底年假剩余天数"]);
-                double allDay = dr["累计已休年假天"].ToString().Equals("") ? 0 : Convert.ToDouble(dr["累计已休年假天"]);
+                double Beforemonthendshengyu = dr["截至上月底年假剩余天数"].ToString().Trim().Equals("") ? 0 : Convert.ToDouble(dr["截至上月底年假剩余天数"]);
+                double allDay = dr["累计已休年假天"].ToString().Trim().Equals("") ? 0 : Convert.ToDouble(dr["累计已休年假天"]);
                 string monthendshengyu = (Beforemonthendshengyu - allDay).ToString();
                 sql = string.Format(@"insert into EmployeeAttendance(Year,Month,Name,EntryDate,JobNumber,ShouldAttendanceDays,
 AccumulatedAnnualLeaveDays,KeptOffDays,
