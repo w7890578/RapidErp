@@ -112,26 +112,52 @@ namespace Rapid.ProduceManager
             liGXTeam.DataValueField = "Team";
             liGXTeam.DataBind();
 
-//            string tempSql = string.Format(@"
-//select t.销售订单号+'^'+t.产品编号+'^'+t.版本+'^'+t.交期+'^'+t.行号+'^'+'{1}' as Id, 
-//t.销售订单号,t.产品编号,t.版本,
-//case when t.未交货数量 <0 then 0 else t.未交货数量 end as 未交货数量 ,
-//t.库存数量,t.在制品数量,t.需要生产数量,t.交期,t.行号,t.客户产品编号 from ({0})t where 1=1", 
-//WorkOrderManager.GetOrderNofinesfinishedDetail(), userId);
+            SetActualProductQty();
+            //            string tempSql = string.Format(@"
+            //select t.销售订单号+'^'+t.产品编号+'^'+t.版本+'^'+t.交期+'^'+t.行号+'^'+'{1}' as Id, 
+            //t.销售订单号,t.产品编号,t.版本,
+            //case when t.未交货数量 <0 then 0 else t.未交货数量 end as 未交货数量 ,
+            //t.库存数量,t.在制品数量,t.需要生产数量,t.交期,t.行号,t.客户产品编号 from ({0})t where 1=1", 
+            //WorkOrderManager.GetOrderNofinesfinishedDetail(), userId);
 
-//            List<string> sqls = new List<string>();
-//            string error = string.Empty;
+            //            List<string> sqls = new List<string>();
+            //            string error = string.Empty;
 
-//            sql = string.Format("delete T_WorkOrder_Temp where user_id='{0}'", userId);
-//            sqls.Add(sql);
+            //            sql = string.Format("delete T_WorkOrder_Temp where user_id='{0}'", userId);
+            //            sqls.Add(sql);
 
-//            sql = string.Format(@"
-//insert into T_WorkOrder_Temp(id,Qty,User_id)
-//select t.Id,t.需要生产数量,'{1}' from ({0})t  
-//", tempSql, userId);
-//            sqls.Add(sql);
+            //            sql = string.Format(@"
+            //insert into T_WorkOrder_Temp(id,Qty,User_id)
+            //select t.Id,t.需要生产数量,'{1}' from ({0})t  
+            //", tempSql, userId);
+            //            sqls.Add(sql);
 
-//            SqlHelper.BatchExecuteSql(sqls, ref error);
+            //            SqlHelper.BatchExecuteSql(sqls, ref error);
+        }
+
+        private static void SetActualProductQty()
+        {
+            string userId = ToolCode.Tool.GetUser().UserNumber;
+            string tempSql = string.Format(@"
+            select t.销售订单号+'^'+t.产品编号+'^'+t.版本+'^'+t.交期+'^'+t.行号+'^'+'{1}' as Id, 
+            t.销售订单号,t.产品编号,t.版本,
+            case when t.未交货数量 <0 then 0 else t.未交货数量 end as 未交货数量 ,
+            t.库存数量,t.在制品数量,t.需要生产数量,t.交期,t.行号,t.客户产品编号 from ({0})t where 1=1",
+WorkOrderManager.GetWorkOrderSql(), userId);
+
+            List<string> sqls = new List<string>();
+            string error = string.Empty;
+
+            string sql = string.Format("delete T_WorkOrder_Temp where user_id='{0}'", userId);
+            sqls.Add(sql);
+
+            sql = string.Format(@"
+            insert into T_WorkOrder_Temp(id,Qty,User_id)
+            select t.Id,t.需要生产数量,'{1}' from ({0})t  
+            ", tempSql, userId);
+            sqls.Add(sql);
+
+            SqlHelper.BatchExecuteSql(sqls, ref error);
         }
 
         //添加小组临时表信息

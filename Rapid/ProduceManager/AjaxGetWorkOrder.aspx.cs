@@ -51,7 +51,7 @@ WorkOrderManager.GetWorkOrderSql(), userId);
         private static void GetPage()
         {
             ToolManager.ZDJC();
-            SetActualProductQty();
+            //SetActualProductQty();
             
             string error = string.Empty;
             string tdTextTemp = string.Empty;
