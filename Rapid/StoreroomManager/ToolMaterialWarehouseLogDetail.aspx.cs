@@ -1,53 +1,117 @@
-﻿using System;
+﻿using BLL;
+using DAL;
+using Rapid.ToolCode;
+using System;
 using System.Collections.Generic;
+using System.Data;
+using System.Text;
 using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
-using BLL;
-using DAL;
-using System.Data;
-using Rapid.ToolCode;
 
 namespace Rapid.StoreroomManager
 {
     public partial class ToolMaterialWarehouseLogDetail : System.Web.UI.Page
     {
-        //单据编号 产成品编号 供应商物料编号 客户物料编号 供应商名称  客户名称
-        public static string show = "inline";
-        public static string showDocumentNumber = "inline";
-        public static string showProductNumber = "inline";
-        public static string showSupplierMaterialNumber = "inline";
-        public static string showCustomerMaterialNumber = "inline";
-        public static string showSupplierName = "inline";
-        public static string showCustomerName = "inline";
-        public static string documentName = string.Empty; //单据名称
-        public static string type = string.Empty;         //出入库类型
-        public static string hasEdit = "inline";
+        public static string documentName = string.Empty;
+
         public static string hasDelete = "inline";
-        public static string showDelete = "inline";
-        public static string showOperar = "inline";
-        public static string showAdd = "inline";
+
+        public static string hasEdit = "inline";
+
         public static string number = string.Empty;
 
-        public static string showRowNumber = "none";
-        public static string showLeadTime = "none";
-        public static string showRoadTransport = "none";
-        public static string showCheck = "inline";
-        public static string showSingleDose = "none";
-        public static string showCompleteQty = "none";
+        //单据编号 产成品编号 供应商物料编号 客户物料编号 供应商名称  客户名称
+        public static string show = "inline";
 
-        public double CountQty = 0;
+        public static string showAdd = "inline";
+        public static string showCheck = "inline";
+        public static string showCompleteQty = "none";
+        public static string showCustomerMaterialNumber = "inline";
+        public static string showCustomerName = "inline";
+
         /// <summary>
         /// 是否显示客户订单号
         /// </summary>
         public static bool ShowCustomerOrderNumber = false;
+
+        public static string showDelete = "inline";
+        public static string showDocumentNumber = "inline";
+        public static string showLeadTime = "none";
+        public static string showOperar = "inline";
+        public static string showProductNumber = "inline";
+        public static string showRoadTransport = "none";
+        public static string showRowNumber = "none";
+        public static string showSingleDose = "none";
+        public static string showSupplierMaterialNumber = "inline";
+        public static string showSupplierName = "inline";
+
+        //单据名称
+        public static string type = string.Empty;         //出入库类型
+
+        public double CountQty = 0;
+
+        protected void btnSearch_Click(object sender, EventArgs e)
+        {
+            Bind();
+        }
+
+        protected void btnUpload_Click(object sender, EventArgs e)
+        {
+            string error = string.Empty;
+            string warehouseNumber = ToolManager.GetQueryString("WarehouseNumber");
+            DataSet ds = ToolManager.ImpExcel(FU_Excel, Server);
+            if (ds == null)
+            {
+                lbSubmit.Text = "选择的文件为空或不是标准的Excel文件！";
+                return;
+            }
+            string insertSqlFormat = @"
+select '{0}',OrdersNumber ,MaterialNumber ,SupplierMaterialNumber,NonDeliveryQty ,UnitPrice,LeadTime,'0','{1}','{2}'  from CertificateOrdersDetail
+  where OrdersNumber = '{3}' and MaterialNumber = '{4}' and LeadTime = '{5}'  and NonDeliveryQty> 0";
+
+            StringBuilder sb = new StringBuilder();
+            sb.AppendLine(@"insert into MaterialWarehouseLogDetail (WarehouseNumber ,DocumentNumber ,MaterialNumber ,SupplierMaterialNumber
+, Qty, UnitPrice, LeadTime, RowNumber, Remark, RoadTransport)");
+
+            foreach (DataRow row in ds.Tables[0].Rows)
+            {
+                if (string.IsNullOrEmpty(row["采购订单号"].ToString().Trim())
+                    || string.IsNullOrEmpty(row["原材料编号"].ToString().Trim())
+                    || string.IsNullOrEmpty(row["交期"].ToString().Trim())
+                    )
+                {
+                    Bind();
+                    lbSubmit.Text = "导入失败：信息填写不完整！";
+                    return;
+                }
+
+                sb.AppendFormat(insertSqlFormat, warehouseNumber, row["备注"], row["运输号"], row["采购订单号"].ToString().Trim(),
+                    row["原材料编号"].ToString().Trim(), row["交期"].ToString().Trim());
+                sb.AppendLine("");
+                sb.Append("union all");
+            }
+            string insertSql = sb.ToString().TrimEnd("union all".ToCharArray());
+            bool result = SqlHelper.ExecuteSql(insertSql, ref error);
+            Bind();
+            if (result)
+            {
+                lbSubmit.Text = "导入成功！";
+                return;
+            }
+            else
+            {
+                lbSubmit.Text = "导入失败!" + error;
+                return;
+            }
+        }
 
         protected void Page_Load(object sender, EventArgs e)
         {
             if (!IsPostBack)
             {
                 showAdd = "inline";
-//spPrint.Visible = ToolCode.Tool.GetUserMenuFunc("L0403", "Print");
+                //spPrint.Visible = ToolCode.Tool.GetUserMenuFunc("L0403", "Print");
                 hasEdit = ToolCode.Tool.GetUserMenuFuncStr("L0403", "Edit");
                 hasDelete = ToolCode.Tool.GetUserMenuFuncStr("L0403", "Delete");
                 if (ToolManager.CheckQueryString("xuan"))//选选择
@@ -65,23 +129,26 @@ namespace Rapid.StoreroomManager
             }
         }
 
-        private void Choose()
+        protected void SetQty(object qty, ref double countQty)
         {
-            string error = string.Empty;
-            string guids = ToolManager.GetQueryString("xuan");
-            string warehouseNumber = ToolManager.GetQueryString("warehouseNumber");
-            string sql = string.Format(@" 
-delete MaterialWarehouseLogDetail where WarehouseNumber='{0}' and Guid not in ({1}) ", warehouseNumber, guids);
-            string result = SqlHelper.ExecuteSql(sql, ref error) ? "1" : error;
-            Response.Write(result);
+            countQty += (qty == null ? 0 : Convert.ToDouble(qty));
+        }
+
+        /// <summary>
+        /// 审核
+        /// </summary>
+        private void Autior()
+        {
+            string autior = ToolCode.Tool.GetUser().UserNumber;
+            string warehouseNumber = ToolManager.GetQueryString("WarehouseNumber");
+            Response.Write(MarerialWarehouseLogListManager.AuditorMarerialWarehouseLogForWarehouseNumber(autior, warehouseNumber));
             Response.End();
             return;
-
         }
 
         private void Bind()
         {
-            string orderbyname=string.Empty;
+            string orderbyname = string.Empty;
             if (ToolManager.CheckQueryString("WarehouseNumber"))
             {
                 string warehouseNumber = ToolManager.GetQueryString("WarehouseNumber");
@@ -95,7 +162,7 @@ delete MaterialWarehouseLogDetail where WarehouseNumber='{0}' and Guid not in ({
                 //样品入库：原材料编号、供应商物料编号、供应商名称、名称、描述、数量、仓位、备注。
                 //生产出库：开工单号、原材料编号、客户物料编号、名称、描述、数量、仓位、备注。
                 //销售出库：销售订单编号、原材料编号、客户物料编号、客户名称、名称、描述、数量、仓位、备注。
-                //采购退料出库：采购订单编号、原材料编号、供应商物料编号、名称、描述、数量、仓位、备注。 
+                //采购退料出库：采购订单编号、原材料编号、供应商物料编号、名称、描述、数量、仓位、备注。
                 //盘亏出库：盘点编号、原材料编号、名称、描述、数量、仓位、备注。
                 //包装出库：销售订单编号、产成品编号、原材料编号、客户物料编号、名称、描述、数量、仓位、备注。
                 //样品出库：开工单号、产成品编号、原材料编号、名称、描述、数量、仓位、备注
@@ -120,6 +187,7 @@ delete MaterialWarehouseLogDetail where WarehouseNumber='{0}' and Guid not in ({
                         ShowCustomerOrderNumber = false;
                         orderbyname = " order by 供应商物料编号 desc ";
                         break;
+
                     case "采购退料出库":
                         documentName = "采购订单";
                         showProductNumber = "none";
@@ -150,7 +218,7 @@ delete MaterialWarehouseLogDetail where WarehouseNumber='{0}' and Guid not in ({
                     //    showSupplierName = "none";
                     //    break;
                     //case "样品出库":
-                    //    documentName = "样品订单号"; 
+                    //    documentName = "样品订单号";
                     //    showProductNumber = "none";
                     //    showSupplierMaterialNumber = "none";
                     //    showSupplierName = "none";
@@ -171,11 +239,12 @@ delete MaterialWarehouseLogDetail where WarehouseNumber='{0}' and Guid not in ({
                         showSingleDose = "none";
                         showRowNumber = "none";
                         showLeadTime = "none";
-                        showRoadTransport = "none"; 
+                        showRoadTransport = "none";
                         showCompleteQty = "none";
                         showProductNumber = "none";
                         ShowCustomerOrderNumber = false;
                         break;
+
                     case "生产出库":
 
                         documentName = "开工单号";
@@ -195,6 +264,7 @@ delete MaterialWarehouseLogDetail where WarehouseNumber='{0}' and Guid not in ({
                         ShowCustomerOrderNumber = false;
                         orderbyname = " order by 客户物料编号 desc ";
                         break;
+
                     case "销售出库（贸易）":
                         documentName = "销售订单号";
                         showProductNumber = "none";
@@ -210,6 +280,7 @@ delete MaterialWarehouseLogDetail where WarehouseNumber='{0}' and Guid not in ({
                         ShowCustomerOrderNumber = true;
                         orderbyname = " order by 客户物料编号 desc ";
                         break;
+
                     case "包装出库":
                         documentName = "开工单号";
                         showProductNumber = "inline";
@@ -220,12 +291,14 @@ delete MaterialWarehouseLogDetail where WarehouseNumber='{0}' and Guid not in ({
                         showOperar = "none";
                         showSingleDose = "none";
                         showRowNumber = "none";
-                        showLeadTime = "none"; 
-                        showRoadTransport = "none"; 
+                        showLeadTime = "none";
+                        showRoadTransport = "none";
                         showCompleteQty = "none";
                         ShowCustomerOrderNumber = false;
                         break;
-                    case "维修出库": documentName = "维修订单号";
+
+                    case "维修出库":
+                        documentName = "维修订单号";
                         sql = "";
                         showCustomerMaterialNumber = "inline";
                         showCustomerName = "none";
@@ -235,11 +308,12 @@ delete MaterialWarehouseLogDetail where WarehouseNumber='{0}' and Guid not in ({
                         showAdd = "none";
                         showOperar = "none";
                         showRowNumber = "none";
-                        showLeadTime = "none"; 
-                        showRoadTransport = "none"; 
+                        showLeadTime = "none";
+                        showRoadTransport = "none";
                         showCompleteQty = "none";
                         ShowCustomerOrderNumber = false;
                         break;
+
                     case "辅料出库":
                         showDocumentNumber = "none";
                         showProductNumber = "none";
@@ -247,8 +321,8 @@ delete MaterialWarehouseLogDetail where WarehouseNumber='{0}' and Guid not in ({
                         showCustomerMaterialNumber = "none";
                         showSingleDose = "none";
                         showRowNumber = "none";
-                        showLeadTime = "none"; 
-                        showRoadTransport = "none"; 
+                        showLeadTime = "none";
+                        showRoadTransport = "none";
                         showCompleteQty = "none";
                         ShowCustomerOrderNumber = false;
                         break;
@@ -264,8 +338,8 @@ delete MaterialWarehouseLogDetail where WarehouseNumber='{0}' and Guid not in ({
                 //,mwld.客户物料编号,mwld.供应商物料编号,mwld.数量,mwld.原材料名称
                 //,mwld.原材料描述,mwld.仓库ID,mwld.备注,mwld.审核时间 ,mwld.样品入库供应商编号 as 供应商编号
                 //,ISNULL ( si.SupplierName ,'')as 供应商名称,mwld.客户编号,mwld.客户名称,mwld.仓位 ,mit.Cargo as 货位
-                //,vmsq.qty as  库存数量 
-                // from V_Tool_MaterialWarehouseLogDetail mwld left join 
+                //,vmsq.qty as  库存数量
+                // from V_Tool_MaterialWarehouseLogDetail mwld left join
                 //SupplierInfo si on  mwld.样品入库供应商编号=si.SupplierId
                 //left join MarerialInfoTable mit on mwld.原材料编号=mit.MaterialNumber
                 //left join V_MaterialStock_Qty vmsq on mwld.原材料编号=vmsq.MaterialNumber {0}", condition);
@@ -304,14 +378,14 @@ delete MaterialWarehouseLogDetail where WarehouseNumber='{0}' and Guid not in ({
                 //else
                 //{
                 sql = string.Format(@"select t.*,vmsq .qty as 库存数量,b.CustomerOrderNumber as 客户采购订单号 from [V_Tool_MaterialWarehouseLogDetail] t left join V_MaterialStock_Qty vmsq
-on t.原材料编号=vmsq.MaterialNumber 
-left join SaleOder b on t.单据编号=b.OdersNumber 
+on t.原材料编号=vmsq.MaterialNumber
+left join SaleOder b on t.单据编号=b.OdersNumber
 {0}
 ", condition);
                 sql = string.Format("select * from ({0})t  {1}", sql, orderbyname);
-//                sql += string.Format(@"union all 
-//select '合计','合计','','','','','','',SUM (t.数量),'','','','',0,'','','','','','','','','','','','','','','','',0,''
-//from ({0}) t", sql);
+                //                sql += string.Format(@"union all
+                //select '合计','合计','','','','','','',SUM (t.数量),'','','','',0,'','','','','','','','','','','','','','','','',0,''
+                //from ({0}) t", sql);
                 //}
                 DataTable dt = SqlHelper.GetTable(sql);
                 rpList.DataSource = dt;
@@ -319,7 +393,7 @@ left join SaleOder b on t.单据编号=b.OdersNumber
                 sql = string.Format("select CheckTime  from MarerialWarehouseLog where WarehouseNumber='{0}'", warehouseNumber);
                 show = SqlHelper.GetScalar(sql) == "" ? "inline" : "none";
                 hdType.Value = type;
-                foreach(DataRow dr in dt.Rows )
+                foreach (DataRow dr in dt.Rows)
                 {
                     CountQty += (dr["数量"] == null ? 0 : Convert.ToDouble(dr["数量"]));
                 }
@@ -359,7 +433,7 @@ select ISNULL (CheckTime ,'') from MarerialWarehouseLog where WarehouseNumber='{
                     }
                 }
 
-           //如果是采购模块进入
+                //如果是采购模块进入
                 else if (ToolManager.CheckQueryString("IsCG"))
                 {
                     showCheck = "none";
@@ -413,24 +487,26 @@ select ISNULL (CheckTime ,'') from MarerialWarehouseLog where WarehouseNumber='{
             else if (ToolManager.CheckQueryString("IsXS"))
             {
                 hdBackUrl.Value = "../SellManager/MaterialSaleOderWarehouseOut.aspx?why=" + DateTime.Now.ToShortTimeString();
-
             }
             else
             {
                 hdBackUrl.Value = "MarerialWarehouseLogList.aspx";
             }
-
         }
 
-        protected void SetQty(object qty, ref double countQty)
+        private void Choose()
         {
-            countQty += (qty == null ? 0 : Convert.ToDouble(qty));
+            string error = string.Empty;
+            string guids = ToolManager.GetQueryString("xuan");
+            string warehouseNumber = ToolManager.GetQueryString("warehouseNumber");
+            string sql = string.Format(@"
+delete MaterialWarehouseLogDetail where WarehouseNumber='{0}' and Guid not in ({1}) ", warehouseNumber, guids);
+            string result = SqlHelper.ExecuteSql(sql, ref error) ? "1" : error;
+            Response.Write(result);
+            Response.End();
+            return;
         }
 
-        protected void btnSearch_Click(object sender, EventArgs e)
-        {
-            Bind();
-        }
         //删除
         private void Delete()
         {
@@ -457,20 +533,6 @@ select ISNULL (CheckTime ,'') from MarerialWarehouseLog where WarehouseNumber='{
                 }
             }
         }
-
-        /// <summary>
-        /// 审核
-        /// </summary>
-        private void Autior()
-        {
-            string autior = ToolCode.Tool.GetUser().UserNumber;
-            string warehouseNumber = ToolManager.GetQueryString("WarehouseNumber");
-            Response.Write(MarerialWarehouseLogListManager.AuditorMarerialWarehouseLogForWarehouseNumber(autior, warehouseNumber));
-            Response.End();
-            return;
-        }
-
-
 
         //protected void btnConfim_Click(object sender, EventArgs e)
         //{

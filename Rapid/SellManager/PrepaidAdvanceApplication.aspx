@@ -16,12 +16,16 @@
             window.location.href = "../SellManager/PrepaidAdvanceApplicationDetail.aspx?OrdersNumber=" + ordersnumber + "&SQ=1&isYS=" + isYS + "&CreateTime=" + createtime + "&deliveryNumber=" + deliveryNumber + "&fatherGuid=" + guid;
         }
 
-
         function Edit(guid) {
             OpenDialog("../SellManager/EditPrepaidAdvanceApplication.aspx?Guid=" + guid, "btnSearch", "250", "600");
         }
-        $(function () {
 
+        function search() {
+            $("#progressBar").show();
+            return true;
+        }
+
+        $(function () {
 
             //申请
             $("#btnSQ").click(function () {
@@ -60,12 +64,13 @@
             });
 
         })
-
     </script>
-
 </head>
 <body>
     <form id="form1" runat="server">
+        <div id="progressBar" style="position: absolute; top: 40%; left: 50%; display: none;">
+            <img src="../Img/loading.gif" alt="loading" />
+        </div>
         <style type="text/css">
             .border {
                 background-color: Black;
@@ -126,13 +131,11 @@
                 </asp:DropDownList>
                     &nbsp&nbsp; 发票号码：
                     <asp:TextBox runat="server" ID="txtInvoiceNumber"></asp:TextBox>
-
-
                 </div>
                 <div>
                     &nbsp;&nbsp;  送货单号：<asp:TextBox runat="server" ID="txtSHorderNumber"> </asp:TextBox><label style="color: red;">(*按送货单号查询请输全,不支持模糊查询)</label>
                     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                    <asp:Button runat="server" ID="btnSearch" Text="查询" CssClass="button" OnClick="btnSearch_Click"
+                    <asp:Button runat="server" ID="btnSearch" Text="查询" CssClass="button" OnClick="btnSearch_Click" OnClientClick="return search();"
                         Style="margin-right: 10px; margin-left: 10px;" />
                     <input type="button" value="申请" id="btnSQ" style="margin-right: 10px; display: none;" />
                     &nbsp;&nbsp;<asp:Button runat="server" ID="btnExpExcel" Text="导出Excel" CssClass="button"
@@ -140,11 +143,11 @@
 
                     &nbsp;&nbsp;<asp:Button runat="server" ID="Button1" Text="导出未开票详细" CssClass="button" OnClick="Button1_Click" />
 
-                     &nbsp;&nbsp;<asp:Button runat="server" ID="Button2" Text="导出所有明细" CssClass="button" OnClick="Button2_Click"   />
+                    &nbsp;&nbsp;<asp:Button runat="server" ID="Button2" Text="导出所有明细" CssClass="button" OnClick="Button2_Click" />
                     &nbsp;&nbsp;<label style="color: Red;" id="lbMsg" runat="server"></label>
                 </div>
             </div>
-            <table class="border" cellpadding="1" cellspacing="1" style="table-layout:fixed;word-break:break-all">
+            <table class="border" cellpadding="1" cellspacing="1" style="table-layout: fixed; word-break: break-all">
                 <thead>
                     <tr>
                         <%-- <td>
@@ -153,7 +156,7 @@
                     </td>--%>
                         <td nowrap>销售订单号
                         </td>
-                        <td >客户采购订单号
+                        <td>客户采购订单号
                         </td>
                         <td nowrap>订单总价
                         </td>
@@ -169,7 +172,7 @@
                         </td>
                         <td nowrap style="display: <%=isYs.Equals ("1")?"inline":"none"%>;">预收二
                         </td>
-                        <td   style="width:100px;white-space:nowrap">发票号码
+                        <td style="width: 100px; white-space: nowrap">发票号码
                         </td>
                         <td nowrap>开票日期
                         </td>
@@ -179,7 +182,7 @@
                         </td>
                         <td nowrap>备注
                         </td>
-                        <td  >操作
+                        <td>操作
                         </td>
                     </tr>
                 </thead>
@@ -218,7 +221,7 @@
                                 <td style="display: <%=isYs.Equals ("1")?"inline":"none"%>;">
                                     <%#Eval("预收二")%>
                                 </td>
-                                <td >
+                                <td>
                                     <%#Eval("发票号码")%>
                                 </td>
                                 <td>
@@ -233,7 +236,7 @@
                                 <td>
                                     <%#Eval("备注")%>
                                 </td>
-                                <td  >
+                                <td>
                                     <span style="display: <%#Eval("销售订单号").ToString().Equals("合计") ? "none" : "inline"%>;">
                                         <a href="###" onclick="Detail('<%#Eval("销售订单号")%>','<%#Eval("送货单号") %>',' <%#Eval("创建时间")%>','<%=isYs%>','<%#Eval("guid") %>')">详细</a></span> &nbsp;&nbsp; <span style="display: <%#Eval("销售订单号").ToString().Equals("合计") ? "none" : "inline"%>;">
                                             <a href="###" onclick="Edit('<%#Eval("guid") %>')">编辑</a></span>
@@ -242,7 +245,6 @@
                         </ItemTemplate>
                     </asp:Repeater>
                 </tbody>
-                
             </table>
         </div>
     </form>

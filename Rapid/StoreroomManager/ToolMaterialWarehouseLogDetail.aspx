@@ -66,6 +66,18 @@
             } catch (e) { }
         }
 
+        function ImpPurchasingStorage() {
+            $("#impPurchasingStorage").show();
+        }
+
+        function HideImpPurchasingStorage() {
+            $("#impPurchasingStorage").hide();
+
+        }
+        function ImpWite() {
+            $("#ImpMsg").html("正在导入！请稍等......");
+            return true;
+        }
 
         $(function () {
             $("#btnAdd").click(function () {
@@ -81,8 +93,7 @@
                 else if (type == "生产出库") {
                     OpenDialog("AddSCCK.aspx?WarehouseNumber=" + warehouseNumber, "btnSearch", "500", "600");
                 }
-                else if(type=="生产退料入库")
-                {
+                else if (type == "生产退料入库") {
                     OpenDialog("AddBackFeeding.aspx?WarehouseNumber=" + warehouseNumber, "btnSearch", "200", "600");
                 }
                 else {
@@ -120,7 +131,7 @@
                 if (!confirm("确定打印所选列？")) {
                     return;
                 }
-                //遍历border样式的table下的td 
+                //遍历border样式的table下的td
                 $(".border tr td").each(function () {
                     className = $(this).attr("class");
                     if (className == "tdOperar") {
@@ -214,10 +225,7 @@
             });
 
         })
-
-
     </script>
-
 </head>
 <body>
     <form id="form1" runat="server">
@@ -270,6 +278,20 @@
                     cursor: pointer;
                 }
         </style>
+
+        <div id="impPurchasingStorage" style="position: absolute; top: 40%; left: 30%; display: none; padding: 30px; border: 2px solid gray; background-color: white;">
+            Excel导入模板：<a href="../Text/采购入库明细导入模板.xls">采购入库明细导入模板.xls</a><br />
+            <br />
+            Excel文件：
+            <asp:FileUpload ID="FU_Excel" runat="server" /><br />
+            <br />
+            &nbsp;&nbsp;&nbsp; &nbsp;
+            <asp:Button ID="btnUpload"
+                runat="server" Text=" 导 入 " OnClick="btnUpload_Click" OnClientClick="return ImpWite();" />&nbsp;&nbsp;<input type="button" value="取消" onclick="HideImpPurchasingStorage();" /><br />
+            <br />
+            <label id="ImpMsg" style="color: red;"></label>
+        </div>
+
         <input type="hidden" runat="server" id="hdBackUrl" />
         <div style="width: 100%; text-align: center; font: 96px; font-size: xx-large; font-weight: bold; margin-top: 20px">
             <%=type %>明细<%=number%>
@@ -295,11 +317,13 @@
                     <input type="button" value="选择" id="btnXuan" style="display: <%=showOperar %>;" style="margin-right: 10px;" />
                     <span style="display: <%=showCheck %>;">
                         <input type="button" value="审核所有" id="btnAutior" class="button" style="margin-right: 10px;" /></span>
-                    <asp:Label runat="server" ID="lbSubmit" ForeColor="Blue"></asp:Label>
+
+                    &nbsp;&nbsp;<input type="button" value="导入采购入库明细" onclick="ImpPurchasingStorage();" />
                     &nbsp;&nbsp; <span id="spPrint" runat="server">
                         <input type="button" value="打印" id="btnPrint" class="button" style="margin-right: 10px;" /></span>
                     <input type="button" value="返回" id="btnBack" class="button" />
                     &nbsp;&nbsp; &nbsp;&nbsp;<label style="color: Red;" id="lbMsg"></label>
+                    <asp:Label runat="server" ID="lbSubmit" ForeColor="Red"></asp:Label>
                 </div>
                 <div style="position: relative; float: left">
                     <div id="choosePrintClounm">
@@ -442,12 +466,12 @@
                                 <input type="checkbox" /></label>全选/反选
                         </td>
                         <%if (ShowCustomerOrderNumber)
-                          {%>
+                            {%>
                         <td class="tdOperar_客户采购订单号 ">客户采购订单号
                         </td>
                         <%} %>
                         <%if (showDocumentNumber.Equals("inline"))
-                          {  
+                            {
                         %>
                         <td class="tdOperar_单据编号"><%=documentName%>
                         </td>
@@ -459,14 +483,14 @@
                         <%--  <td class="tdOperar_产成品编号" style='display: <%=showProductNumber%>;'>产成品编号
                         </td>--%>
                         <%if (showProductNumber.Equals("inline"))
-                          {  
+                            {
                         %>
                         <td class="tdOperar_产成品编号">产成品编号
                         </td>
                         <%} %>
 
                         <%if (showProductNumber.Equals("inline"))
-                          {  
+                            {
                         %>
                         <td class="tdOperar_客户产成品编号">客户产成品编号
                         </td>
@@ -474,7 +498,7 @@
                         <%--                        <td class="tdOperar_客户产成品编号" style='display: <%=showProductNumber%>;'>客户产成品编号
                         </td>--%>
                         <%if (showProductNumber.Equals("inline"))
-                          {  
+                            {
                         %>
                         <td class="tdOperar_版本">版本
                         </td>
@@ -485,14 +509,14 @@
                         </td>
 
                         <%if (showSupplierMaterialNumber.Equals("inline"))
-                          {  
+                            {
                         %>
                         <td class="tdOperar_供应商物料编号">供应商物料编号
                         </td>
                         <%} %>
 
                         <%if (showCustomerMaterialNumber.Equals("inline"))
-                          {  
+                            {
                         %>
                         <td class="tdOperar_客户物料编号">客户物料编号
                         </td>
@@ -546,12 +570,12 @@
                                 <%#Eval("出入库编号")%>
                             </td>--%>
                                 <%if (ShowCustomerOrderNumber)
-                                  {%>
+                                    {%>
                                 <td class="tdOperar_客户采购订单号 "><%#Eval("客户采购订单号") %>
                                 </td>
                                 <%} %>
                                 <%if (showDocumentNumber.Equals("inline"))
-                                  {  
+                                    {
                                 %>
                                 <td class="tdOperar_单据编号"><%#Eval("单据编号") %>
                                 </td>
@@ -565,14 +589,14 @@
                                 </td>--%>
 
                                 <%if (showProductNumber.Equals("inline"))
-                                  {  
+                                    {
                                 %>
                                 <td class="tdOperar_产成品编号"><%#Eval("产成品编号") %>
                                 </td>
                                 <%} %>
 
                                 <%if (showProductNumber.Equals("inline"))
-                                  {  
+                                    {
                                 %>
                                 <td class="tdOperar_客户产成品编号"><%#Eval("客户产成品编号") %>
                                 </td>
@@ -584,37 +608,36 @@
                                     <%#Eval("版本")%>
                                 </td>--%>
                                 <%if (showProductNumber.Equals("inline"))
-                                  {  
+                                    {
                                 %>
                                 <td class="tdOperar_版本"><%#Eval("版本") %>
                                 </td>
                                 <%} %>
 
-
                                 <td class="tdOperar_原材料编号">
                                     <%#Eval("原材料编号")%>
                                 </td>
                                 <%if (showSupplierMaterialNumber.Equals("inline"))
-                                  {  
+                                    {
                                 %>
                                 <td class="tdOperar_供应商物料编号"><%#Eval("供应商物料编号") %>
                                 </td>
                                 <%} %>
                                 <%if (showCustomerMaterialNumber.Equals("inline"))
-                                  { %>
+                                    { %>
                                 <td class="tdOperar_客户物料编号"><%#Eval("客户物料编号") %> </td>
                                 <%} %>
                                 <td class="tdOperar_货位">
                                     <%#Eval("货位")%>
                                 </td>
                                 <%if (showSupplierName.Equals("inline"))
-                                  { %>
+                                    { %>
                                 <td class="tdOperar_供应商名称" style='display: <%=showSupplierName%>;'>
                                     <%#Eval("供应商名称")%>
                                 </td>
                                 <%} %>
                                 <%if (showCustomerName.Equals("inline"))
-                                  { %>
+                                    { %>
                                 <td class="tdOperar_客户名称" style='display: <%=showCustomerName%>;'>
                                     <%#Eval("客户名称")%>
                                 </td>
@@ -652,7 +675,7 @@
                                     <%#Eval("货物类型") %>
                                 </td>
                                 <td class="tdOperar_数量">
-                                   <%-- <%if (type.Equals("生产出库"))
+                                    <%-- <%if (type.Equals("生产出库"))
                                       {%>
                                     <a href="/PurchaseManager/DDDetail.aspx?MateriNumber=<%#Eval("原材料编号")%>" target="_blank"><%# Eval("数量")%></a>
                                     <%}
@@ -667,7 +690,6 @@
                                     <span style="display: <%=showOperar%>;"><a href="###" onclick="Edit('<%#Eval("Guid") %>')">编辑</a> <a href="###" onclick="Delete('<%#Eval("Guid") %>')">删除</a> </span>
                                 </td>
                             </tr>
-
                         </ItemTemplate>
                     </asp:Repeater>
                 </tbody>
@@ -677,11 +699,11 @@
                         <td>合计
                         </td>
                         <%if (ShowCustomerOrderNumber)
-                          {%>
+                            {%>
                         <td></td>
                         <%} %>
                         <%if (showDocumentNumber.Equals("inline"))
-                          {  
+                            {
                         %>
                         <td></td>
                         <%} %>
@@ -692,20 +714,20 @@
                         <%--  <td class="tdOperar_产成品编号" style='display: <%=showProductNumber%>;'>产成品编号
                         </td>--%>
                         <%if (showProductNumber.Equals("inline"))
-                          {  
+                            {
                         %>
                         <td></td>
                         <%} %>
 
                         <%if (showProductNumber.Equals("inline"))
-                          {  
+                            {
                         %>
                         <td class="tdOperar_客户产成品编号"></td>
                         <%} %>
                         <%--                        <td class="tdOperar_客户产成品编号" style='display: <%=showProductNumber%>;'>客户产成品编号
                         </td>--%>
                         <%if (showProductNumber.Equals("inline"))
-                          {  
+                            {
                         %>
                         <td class="tdOperar_版本"></td>
                         <%} %>
@@ -714,13 +736,13 @@
                         <td class="tdOperar_原材料编号"></td>
 
                         <%if (showSupplierMaterialNumber.Equals("inline"))
-                          {  
+                            {
                         %>
                         <td class="tdOperar_供应商物料编号"></td>
                         <%} %>
 
                         <%if (showCustomerMaterialNumber.Equals("inline"))
-                          {  
+                            {
                         %>
                         <td class="tdOperar_客户物料编号"></td>
                         <%} %>
@@ -747,12 +769,11 @@
                         <td class="tdOperar_备注"></td>
                         <td class="tdOperar"></td>
                     </tr>
-
                 </tfoot>
             </table>
         </div>
         <%if (type == "采购入库")
-          { %>
+            { %>
         <div>
             <iframe frameborder="0" style="min-width: 200px; min-height: 450px; width: 100%;" src="OrderCheckPage.aspx?WarehouseNumber=<%=Request["WarehouseNumber"] %>"></iframe>
         </div>
