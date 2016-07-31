@@ -317,8 +317,10 @@
                     <input type="button" value="选择" id="btnXuan" style="display: <%=showOperar %>;" style="margin-right: 10px;" />
                     <span style="display: <%=showCheck %>;">
                         <input type="button" value="审核所有" id="btnAutior" class="button" style="margin-right: 10px;" /></span>
-
+                    <%if (type == "采购入库")
+                        { %>
                     &nbsp;&nbsp;<input type="button" value="导入采购入库明细" onclick="ImpPurchasingStorage();" />
+                    <%} %>
                     &nbsp;&nbsp; <span id="spPrint" runat="server">
                         <input type="button" value="打印" id="btnPrint" class="button" style="margin-right: 10px;" /></span>
                     <input type="button" value="返回" id="btnBack" class="button" />
