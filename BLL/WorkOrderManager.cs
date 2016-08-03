@@ -983,12 +983,12 @@ WHERE  PlanNumber = '{1}'
             Dictionary<string, int> sumQty = new Dictionary<string, int>();
             string sql = @"
 with A as (
-	select  ProductNumber,Version ,
-	case when
-	sum(Qty)-SUM(StorageQty)<0 then 0
-	else sum(Qty)-SUM(StorageQty) end as  Qty
-	 from  ProductPlanDetail
-	 group by ProductNumber,Version
+    select  ProductNumber,Version ,
+    case when
+    sum(Qty)-SUM(ISNULL(FinishQty,0))<0 then 0
+    else sum(Qty)-SUM(ISNULL(FinishQty,0)) end as Qty
+     from  ProductPlanSubDetail  where Team='检验'
+     group by ProductNumber,Version
  ),
  B as (
 	 select ProductNumber, Version, SUM(qty) as Qty from ProductWarehouseLogDetail where WarehouseNumber in (

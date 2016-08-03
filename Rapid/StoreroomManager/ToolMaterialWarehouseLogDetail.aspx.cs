@@ -53,13 +53,18 @@ namespace Rapid.StoreroomManager
 
         protected void btnSearch_Click(object sender, EventArgs e)
         {
+            lbSubmit.Text = string.Empty;
             Bind();
         }
 
         protected void btnUpload_Click(object sender, EventArgs e)
         {
             string error = string.Empty;
+
+            string errorTrace = string.Empty;
+            int errorCount = 0;
             string warehouseNumber = ToolManager.GetQueryString("WarehouseNumber");
+
             DataSet ds = ToolManager.ImpExcel(FU_Excel, Server);
             if (ds == null)
             {
@@ -74,8 +79,11 @@ select '{0}',OrdersNumber ,MaterialNumber ,SupplierMaterialNumber,NonDeliveryQty
             sb.AppendLine(@"insert into MaterialWarehouseLogDetail (WarehouseNumber ,DocumentNumber ,MaterialNumber ,SupplierMaterialNumber
 , Qty, UnitPrice, LeadTime, RowNumber, Remark, RoadTransport)");
 
-            foreach (DataRow row in ds.Tables[0].Rows)
+            //foreach (DataRow row in ds.Tables[0].Rows)
+            for (int i = 0; i < ds.Tables[0].Rows.Count; i++)
             {
+                DataRow row = ds.Tables[0].Rows[i];
+
                 if (string.IsNullOrEmpty(row["采购订单号"].ToString().Trim())
                     || string.IsNullOrEmpty(row["原材料编号"].ToString().Trim())
                     || string.IsNullOrEmpty(row["交期"].ToString().Trim())
@@ -86,18 +94,36 @@ select '{0}',OrdersNumber ,MaterialNumber ,SupplierMaterialNumber,NonDeliveryQty
                     return;
                 }
 
-                sb.AppendFormat(insertSqlFormat, warehouseNumber, row["备注"], row["运输号"], row["采购订单号"].ToString().Trim(),
-                    row["原材料编号"].ToString().Trim(), row["交期"].ToString().Trim());
+                string tempSql = string.Format(insertSqlFormat, warehouseNumber, row["备注"], row["运输号"], row["采购订单号"].ToString().Trim(),
+                    row["原材料编号"].ToString().Trim(), Convert.ToDateTime(row["交期"].ToString().Trim()).ToString("yyyy-MM-dd"));
+
+                sb.Append(tempSql);
                 sb.AppendLine("");
                 sb.Append("union all");
+
+                DataTable dtTemp = SqlHelper.GetTable(tempSql);
+                if (dtTemp == null || dtTemp.Rows.Count == 0)
+                {
+                    errorTrace += string.Format("Excel文件第{0}行导入失败，原因：没有查询到匹配的数据。{1}", i, "<br/>");
+                    errorCount += 1;
+                }
             }
+
             string insertSql = sb.ToString().TrimEnd("union all".ToCharArray());
             bool result = SqlHelper.ExecuteSql(insertSql, ref error);
             Bind();
             if (result)
             {
-                lbSubmit.Text = "导入成功！";
-                return;
+                if (errorCount > 0 || !string.IsNullOrEmpty(errorTrace))
+                {
+                    lbSubmit.Text = "导入异常！" + "<br/>" + errorTrace;
+                    return;
+                }
+                else
+                {
+                    lbSubmit.Text = "导入成功！";
+                    return;
+                }
             }
             else
             {
