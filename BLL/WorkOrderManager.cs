@@ -437,7 +437,7 @@ where  toxt .UserId='{0}' and ISNULL (  toxt .ZZTeam,'')!=''", userId, kgNumber)
             //计算开工单总表额定总工时【从总表明细统计】
             sql = string.Format(@"select CAST ( ROUND ( CAST( SUM (isnull( t.合计工时,0)) as decimal(18,2) )/60,2) as decimal(18,2)) from ({0}) t", tempSummaryTableDetailSql);
             edGS = SqlHelper.GetScalar(sql);//开工单总表额定总工时
-                                            //计算总开工人数【从分表统计】
+            //计算总开工人数【从分表统计】
             sql = string.Format(@"select isnull( SUM (t.人数) ,0)from (
 select a.班组,a.额定总工时,b.人数,CAST( round((cast(a.额定总工时 as decimal(18,2) )/b.人数)/1 ,2) as decimal(18,2))as 目标完成工时 from (
 select t.班组,SUM (  t.额定总工时)/60 as 额定总工时 from ({0}) t group by t.班组) a
@@ -768,6 +768,23 @@ group by ProductNumber,Version
             return qty;
         }
 
+        public static Dictionary<string, int> GetNonDeliveryQty()
+        {
+            Dictionary<string, int> nonDeliveryQty = new Dictionary<string, int>();
+            string sql = @"
+select ProductNumber,Version,sum(ISNULL(NonDeliveryQty,0)) as Qty
+from V_MachineOderDetail_Product_Nofinesfinished_Detail
+where NonDeliveryQty>0
+ group by ProductNumber,Version
+";
+            DataTable dt = SqlHelper.GetTable(sql);
+            foreach (DataRow dr in dt.Rows)
+            {
+                nonDeliveryQty.Add(dr["ProductNumber"] + "|" + dr["Version"], Convert.ToInt32(dr["Qty"]));
+            }
+            return nonDeliveryQty;
+        }
+
         /// <summary>
         /// 获得未完成的加工销售订单的明细 sql
         /// </summary>
@@ -807,7 +824,8 @@ else sum(Qty)-SUM(ISNULL(FinishQty,0)) end as productQty
  from  ProductPlanSubDetail  where Team='检验'
  group by ProductNumber,Version
 ";
-            foreach (DataRow dr in SqlHelper.GetTable(sql).Rows)
+            DataTable dt = SqlHelper.GetTable(sql);
+            foreach (DataRow dr in dt.Rows)
             {
                 productingQty.Add(dr["ProductNumber"] + "|" + dr["Version"], Convert.ToInt32(dr["productQty"]));
             }
@@ -1052,6 +1070,7 @@ select '{0}' as 销售订单号, '{1}' as 产品编号, '{2}' as 版本,{3} as �
             var stockQtys = GetStockQty();
             var noConfirmQtys = GetNoConfirmQty();
             var sumQtys = GetSumQty();
+            var nonDeliveryQtys = GetNonDeliveryQty();
 
             string sql = @"
 select *  from  V_MachineOderDetail_Product_Nofinesfinished_Detail  vpnd
@@ -1072,6 +1091,10 @@ order by vpnd.OdersNumber asc, vpnd.LeadTime  asc
             {
                 key = dr["ProductNumber"] + "|" + dr["Version"];
 
+                if (nonDeliveryQtys.ContainsKey(key))
+                {
+                    dr["NonDeliveryQty"] = nonDeliveryQtys[key];
+                }
                 if (productingQtys.ContainsKey(key))
                 {
                     dr["ProductingQty"] = productingQtys[key];
@@ -1130,6 +1153,19 @@ order by vpnd.OdersNumber asc, vpnd.LeadTime  asc
             }
 
             return dtMain;
+        }
+
+        /// <summary>
+        /// 修复错误数据
+        /// </summary>
+        public static void RepairData()
+        {
+            try
+            {
+                string sql = " update ProductPlanSubDetail set Version=LTRIM(RTRIM(Version))";
+                SqlHelper.ExecuteSql(sql);
+            }
+            catch { }
         }
 
         /// <summary>
