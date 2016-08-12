@@ -1091,10 +1091,10 @@ order by vpnd.OdersNumber asc, vpnd.LeadTime  asc
             {
                 key = dr["ProductNumber"] + "|" + dr["Version"];
 
-                if (nonDeliveryQtys.ContainsKey(key))
-                {
-                    dr["NonDeliveryQty"] = nonDeliveryQtys[key];
-                }
+                //if (nonDeliveryQtys.ContainsKey(key))
+                //{
+                //    dr["NonDeliveryQty"] = nonDeliveryQtys[key];
+                //}
                 if (productingQtys.ContainsKey(key))
                 {
                     dr["ProductingQty"] = productingQtys[key];
