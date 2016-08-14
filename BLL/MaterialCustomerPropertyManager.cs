@@ -1,21 +1,38 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Data;
-using DAL;
+﻿using DAL;
 using Model;
+using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Text;
 
 namespace BLL
 {
     public class MaterialCustomerPropertyManager
     {
-        private static string sql = string.Empty;
         private static string error = string.Empty;
+        private static string sql = string.Empty;
+
+        public static string Delete(string packagenumber, string ids)
+        {
+            sql = string.Format(@" delete PackageInfoCustomerProperty where PackageNumber='{0}' and CustomerId in ({1}) ", packagenumber, ids);
+            return SqlHelper.ExecuteSql(sql, ref error) == true ? "1" : error;
+        }
+
+        /// <summary>
+        /// 删除原材料客户属性
+        /// </summary>
+        /// <param name="ids"></param>
+        /// <returns></returns>
+        public static string DeleteData(string ids)
+        {
+            sql = string.Format(@" delete MaterialCustomerProperty where guid in ({0}) ", ids);
+            return SqlHelper.ExecuteSql(sql, ref error) == true ? "1" : error;
+        }
 
         public static string GetCustomerMarerialNames()
         {
             string MarerialNames = string.Empty;
-            string sql = @"  
+            string sql = @"
 select distinct CustomerMaterialNumber from MaterialCustomerProperty  where isnull (CustomerMaterialNumber,'')!=''";
             DataTable dt = SqlHelper.GetTable(sql);
             if (dt != null && dt.Rows.Count > 0)
@@ -28,21 +45,33 @@ select distinct CustomerMaterialNumber from MaterialCustomerProperty  where isnu
             return MarerialNames.TrimEnd(',');
         }
 
-
         /// <summary>
-        /// 删除原材料客户属性
+        /// 获取所有原材料的客户名称
         /// </summary>
-        /// <param name="ids"></param>
         /// <returns></returns>
-        public static string DeleteData(string ids)
+        public static Dictionary<string, Dictionary<string, string>> GetMarerialCustomerNames()
         {
-            sql = string.Format(@" delete MaterialCustomerProperty where guid in ({0}) ", ids);
-            return SqlHelper.ExecuteSql(sql, ref error) == true ? "1" : error;
-        }
-        public static string Delete(string packagenumber, string ids)
-        {
-            sql = string.Format(@" delete PackageInfoCustomerProperty where PackageNumber='{0}' and CustomerId in ({1}) ", packagenumber, ids);
-            return SqlHelper.ExecuteSql(sql, ref error) == true ? "1" : error;
+            Dictionary<string, Dictionary<string, string>> marerialCustomerNames = new Dictionary<string, Dictionary<string, string>>();
+            sql = @"
+select m.MaterialNumber,m.CustomerId,c.CustomerName from MaterialCustomerProperty m inner join  Customer c on m.CustomerId=c.CustomerId
+order by m.MaterialNumber
+";
+            DataTable dt = SqlHelper.GetTable(sql);
+            foreach (DataRow dr in dt.Rows)
+            {
+                if (marerialCustomerNames.ContainsKey(dr["MaterialNumber"].ToString().Trim()))
+                {
+                    marerialCustomerNames[dr["MaterialNumber"].ToString()].Add(dr["CustomerId"].ToString().Trim(), dr["CustomerName"].ToString().Trim());
+                    //marerialCustomerNames[dr["MaterialNumber"].ToString()] += "," + dr["CustomerName"].ToString();
+                }
+                else
+                {
+                    Dictionary<string, string> temp = new Dictionary<string, string>();
+                    temp.Add(dr["CustomerId"].ToString().Trim(), dr["CustomerName"].ToString().Trim());
+                    marerialCustomerNames.Add(dr["MaterialNumber"].ToString(), temp);
+                }
+            }
+            return marerialCustomerNames;
         }
 
         /// <summary>
