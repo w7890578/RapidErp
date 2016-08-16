@@ -172,8 +172,10 @@
                                     &nbsp;&nbsp;
                                 <asp:Label ID="Label1" runat="server" Text="原材料编号："></asp:Label>
                                     <asp:TextBox ID="txtMaterialNumber" runat="server"></asp:TextBox>
-                                    <asp:Label ID="Label2" runat="server" Text="货物类型："></asp:Label>
+                                    &nbsp;&nbsp;<asp:Label ID="Label2" runat="server" Text="货物类型："></asp:Label>
                                     <asp:TextBox ID="txtCargoType" runat="server"></asp:TextBox>
+                                    &nbsp;&nbsp;客户名称：
+                                    <asp:TextBox ID="txtCustomerName" runat="server"></asp:TextBox>
                                     <asp:Button ID="btnSearch" runat="server" Text="查询" OnClick="btnSearch_Click" />
                                     <span id="spPrint" runat="server">
                                         <input type="button" value="打印" id="btnPrint" style="margin-left: 10px" class="button" /></span>

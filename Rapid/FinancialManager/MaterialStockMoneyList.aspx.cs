@@ -94,6 +94,18 @@ namespace Rapid.FinancialManager
             // from MarerialInfoTable m inner join
             //(select SUM(StockQty) as 库存数量,MaterialNumber from MaterialStock  group by MaterialNumber)t
             //on m.MaterialNumber=t.MaterialNumber  {0}) a" ,conection);
+            //            union all
+            //select '合计','',SUM(t.库存数量),'',SUM(t.库存金额),'' from(select m.MaterialNumber as 原材料编号, m.Description as 描述,
+            //t.库存数量,
+            //CAST(a.单价 as varchar(10)) as 单价,
+            //t.库存数量 * a.单价 as 库存金额, ISNULL(m.CargoType, '') as 货物类型
+
+            //from MarerialInfoTable m inner
+            //join
+            //(select SUM(StockQty) as 库存数量, MaterialNumber from MaterialStock  group by MaterialNumber)t
+            //on m.MaterialNumber = t.MaterialNumber
+            //inner join (select MaterialNumber, MIN (Prcie) as 单价 from MaterialSupplierProperty group by MaterialNumber) a
+            //on a.MaterialNumber = m.MaterialNumber  { 0})t
             string sql = string.Format(@"
 select m.MaterialNumber as 原材料编号, m.Description as 描述 ,
  t.库存数量,
@@ -104,16 +116,7 @@ select m.MaterialNumber as 原材料编号, m.Description as 描述 ,
 on m.MaterialNumber=t.MaterialNumber
 inner join (select MaterialNumber,MIN (Prcie ) as 单价 from MaterialSupplierProperty group by MaterialNumber) a
 on a.MaterialNumber =m.MaterialNumber  {0}
-union all
-select '合计','',SUM (t.库存数量),'',SUM( t.库存金额),'' from (select m.MaterialNumber as 原材料编号, m.Description as 描述 ,
- t.库存数量,
- CAST(a.单价 as varchar(10)) as 单价,
- t.库存数量*a.单价 as 库存金额,ISNULL( m.CargoType,'') as 货物类型
- from MarerialInfoTable m inner join
-(select SUM(StockQty) as 库存数量,MaterialNumber from MaterialStock  group by MaterialNumber )t
-on m.MaterialNumber=t.MaterialNumber
-inner join (select MaterialNumber,MIN (Prcie ) as 单价 from MaterialSupplierProperty group by MaterialNumber) a
-on a.MaterialNumber =m.MaterialNumber  {0})t", conection);
+", conection);
             return sql;
         }
 
@@ -129,6 +132,30 @@ on a.MaterialNumber =m.MaterialNumber  {0})t", conection);
                 {
                     dr["CustomerNames"] = GetCustomerNames(marerialCustomerNames, dr["原材料编号"].ToString().Trim()); ;
                 }
+            }
+            string customerName = txtCustomerName.Text.Trim();
+            if (!string.IsNullOrEmpty(customerName))
+            {
+                DataRow[] tempRows = dtResult.Select("CustomerNames like '%" + customerName + "%'");
+
+                if (tempRows != null && tempRows.Length > 0)
+                {
+                    dtResult = tempRows.CopyToDataTable<DataRow>();
+                }
+                else
+                {
+                    dtResult.Rows.Clear();
+                }
+            }
+            if (dtResult != null && dtResult.Rows != null && dtResult.Rows.Count > 0)
+            {
+                double sumStockQty = Convert.ToDouble(dtResult.Compute("sum(库存数量)", "true"));
+                double sumStockPrice = Convert.ToDouble(dtResult.Compute("sum(库存金额)", "true"));
+
+                DataRow sumRow = dtResult.NewRow();
+                sumRow["库存数量"] = sumStockQty;
+                sumRow["库存金额"] = sumStockPrice;
+                dtResult.Rows.Add(sumRow);
             }
             return dtResult;
         }
