@@ -181,7 +181,6 @@ a:visited {
     background-color: #EAEAEA;
 }
 
-
 /* -- Button -- */
 .button {
     background: url(../Img/button_new.png) repeat-x left top; /* border: 1px solid #aed0ea;*/
@@ -271,8 +270,6 @@ table.tablesorter tbody tr {
     cursor: pointer;
 }
 
-
-
 .outerDiv {
     border-radius: 5px;
     border: 1px solid #B3D08F;
@@ -294,4 +291,5 @@ table.tablesorter tbody tr {
 
     .border tr td {
         background-color: White;
+        text-align: center;
     }

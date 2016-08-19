@@ -1,15 +1,99 @@
-﻿using System;
+﻿using DAL;
+using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
-using System.Data;
-using DAL;
 
 namespace Rapid.SellManager
 {
     public partial class V_DeliveryBill_Reprot : System.Web.UI.Page
     {
+        public void contrlRepeater()
+        {
+            DataTable dt = GetTable();
+            PagedDataSource pds = new PagedDataSource();
+            pds.DataSource = dt.DefaultView;
+            pds.AllowPaging = true;
+            pds.PageSize = 100;
+            pds.CurrentPageIndex = Convert.ToInt32(this.labPage.Text) - 1;
+            Repeater1.DataSource = pds;
+            LabCountPage.Text = pds.PageCount.ToString();
+            labPage.Text = (pds.CurrentPageIndex + 1).ToString();
+            this.lbtnpritPage.Enabled = true;
+            this.lbtnFirstPage.Enabled = true;
+            this.lbtnNextPage.Enabled = true;
+            this.lbtnDownPage.Enabled = true;
+            if (pds.CurrentPageIndex < 1)
+            {
+                this.lbtnpritPage.Enabled = false;
+                this.lbtnFirstPage.Enabled = false;
+            }
+            if (pds.CurrentPageIndex == pds.PageCount - 1)
+            {
+                this.lbtnNextPage.Enabled = false;
+                this.lbtnDownPage.Enabled = false;
+            }
+            Repeater1.DataBind();
+            //ToolCode.Tool.MergeCells(Repeater1, "tdOrderNumber");
+            //ToolCode.Tool.MergeCells(Repeater1, "tdCustomerOrderNumber");
+        }
+
+        public string cuts(string aa, int bb)
+        {
+            if (aa.Length <= bb)
+            {
+                return aa;
+            }
+            else
+            {
+                return aa.Substring(0, bb);
+            }
+        }
+
+        protected void btnEmp_Click(object sender, EventArgs e)
+        {
+            string sql = GetSql();
+            if (string.IsNullOrEmpty(sql))
+            {
+                return;
+            }
+            ToolCode.Tool.ExpExcel(sql, "送货单明细报表");
+        }
+
+        protected void btnSearch_Click(object sender, EventArgs e)
+        {
+            this.labPage.Text = "1";
+            this.contrlRepeater();
+        }
+
+        protected void lbtnDownPage_Click(object sender, EventArgs e)
+        {
+            this.labPage.Text = this.LabCountPage.Text;
+            this.contrlRepeater();
+        }
+
+        protected void lbtnFirstPage_Click(object sender, EventArgs e)
+        {
+            this.labPage.Text = "1";
+            this.contrlRepeater();
+        }
+
+        protected void lbtnNextPage_Click(object sender, EventArgs e)
+        {
+            this.labPage.Text = Convert.ToString(Convert.ToInt32(labPage.Text) + 1);
+            this.contrlRepeater();
+        }
+
+        //获取指字符个数的字符
+        //Repeater分页控制显示方法
+        protected void lbtnpritPage_Click(object sender, EventArgs e)
+        {
+            this.labPage.Text = Convert.ToString(Convert.ToInt32(labPage.Text) - 1);
+            this.contrlRepeater();
+        }
+
         protected void Page_Load(object sender, EventArgs e)
         {
             if (!IsPostBack)
@@ -17,7 +101,6 @@ namespace Rapid.SellManager
                 this.labPage.Text = "1";
                 this.contrlRepeater();
             }
-
         }
 
         private string GetSql()
@@ -65,94 +148,12 @@ select '合计','','','','','','','',sum(数量),'','','',''  from ({0})t", sql)
             sql = string.Format(" select * from ({0})t order by 送货单号 desc", sql);
             return sql;
         }
+
         private DataTable GetTable()
         {
             string sql = GetSql();
             DataTable dt = SqlHelper.GetTable(sql);
             return dt;
-        }
-
-        //获取指字符个数的字符
-
-        public string cuts(string aa, int bb)
-        {
-            if (aa.Length <= bb)
-            {
-                return aa;
-            }
-            else
-            {
-                return aa.Substring(0, bb);
-            }
-        }
-        //Repeater分页控制显示方法
-
-        public void contrlRepeater()
-        {
-            DataTable dt = GetTable();
-            PagedDataSource pds = new PagedDataSource();
-            pds.DataSource = dt.DefaultView;
-            pds.AllowPaging = true;
-            pds.PageSize = 100;
-            pds.CurrentPageIndex = Convert.ToInt32(this.labPage.Text) - 1;
-            Repeater1.DataSource = pds;
-            LabCountPage.Text = pds.PageCount.ToString();
-            labPage.Text = (pds.CurrentPageIndex + 1).ToString();
-            this.lbtnpritPage.Enabled = true;
-            this.lbtnFirstPage.Enabled = true;
-            this.lbtnNextPage.Enabled = true;
-            this.lbtnDownPage.Enabled = true;
-            if (pds.CurrentPageIndex < 1)
-            {
-                this.lbtnpritPage.Enabled = false;
-                this.lbtnFirstPage.Enabled = false;
-            }
-            if (pds.CurrentPageIndex == pds.PageCount - 1)
-            {
-                this.lbtnNextPage.Enabled = false;
-                this.lbtnDownPage.Enabled = false;
-            }
-            Repeater1.DataBind();
-            //ToolCode.Tool.MergeCells(Repeater1, "tdOrderNumber");
-            //ToolCode.Tool.MergeCells(Repeater1, "tdCustomerOrderNumber");
-        }
-        protected void lbtnpritPage_Click(object sender, EventArgs e)
-        {
-            this.labPage.Text = Convert.ToString(Convert.ToInt32(labPage.Text) - 1);
-            this.contrlRepeater();
-        }
-        protected void lbtnFirstPage_Click(object sender, EventArgs e)
-        {
-            this.labPage.Text = "1";
-            this.contrlRepeater();
-        }
-
-        protected void lbtnDownPage_Click(object sender, EventArgs e)
-        {
-            this.labPage.Text = this.LabCountPage.Text;
-            this.contrlRepeater();
-        }
-
-        protected void lbtnNextPage_Click(object sender, EventArgs e)
-        {
-            this.labPage.Text = Convert.ToString(Convert.ToInt32(labPage.Text) + 1);
-            this.contrlRepeater();
-        }
-
-        protected void btnSearch_Click(object sender, EventArgs e)
-        {
-            this.labPage.Text = "1";
-            this.contrlRepeater();
-        }
-
-        protected void btnEmp_Click(object sender, EventArgs e)
-        {
-            string sql = GetSql();
-            if (string.IsNullOrEmpty(sql))
-            {
-                return;
-            }
-            ToolCode.Tool.ExpExcel(sql, "送货单明细报表");
         }
     }
 }

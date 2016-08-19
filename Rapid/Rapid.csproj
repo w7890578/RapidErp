@@ -111,6 +111,7 @@
     <Content Include="DB\001_P_MarerialScrapLog.sql" />
     <Content Include="DB\002_P_MarerialScrapLogDetail.sql" />
     <Content Include="DB\003_CreateOrderCheck.sql" />
+    <Content Include="FinancialManager\Report_CustomerProductSaleMonth.aspx" />
     <Content Include="FinancialManager\Report_MaterialRunningMoney.aspx" />
     <Content Include="FinancialManager\Report_ProductWarehouseCurrentAccount.aspx" />
     <Content Include="Img\loadingOld.gif" />
@@ -1368,6 +1369,12 @@
     </Compile>
     <Compile Include="FinancialManager\PrepaidAdvanceStatisticsReport.aspx.designer.cs">
       <DependentUpon>PrepaidAdvanceStatisticsReport.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="FinancialManager\Report_CustomerProductSaleMonth.aspx.cs">
+      <DependentUpon>Report_CustomerProductSaleMonth.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="FinancialManager\Report_CustomerProductSaleMonth.aspx.designer.cs">
+      <DependentUpon>Report_CustomerProductSaleMonth.aspx</DependentUpon>
     </Compile>
     <Compile Include="FinancialManager\Report_MaterialRunningMoney.aspx.cs">
       <DependentUpon>Report_MaterialRunningMoney.aspx</DependentUpon>
