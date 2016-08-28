@@ -58,22 +58,13 @@ namespace Rapid.SellManager {
         protected global::System.Web.UI.HtmlControls.HtmlInputHidden hdType;
         
         /// <summary>
-        /// txtOdersNumber 控件。
+        /// txtInvoiceNumber 控件。
         /// </summary>
         /// <remarks>
         /// 自动生成的字段。
         /// 若要进行修改，请将字段声明从设计器文件移到代码隐藏文件。
         /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox txtOdersNumber;
-        
-        /// <summary>
-        /// txtCustomerOdersNumber 控件。
-        /// </summary>
-        /// <remarks>
-        /// 自动生成的字段。
-        /// 若要进行修改，请将字段声明从设计器文件移到代码隐藏文件。
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox txtCustomerOdersNumber;
+        protected global::System.Web.UI.WebControls.TextBox txtInvoiceNumber;
         
         /// <summary>
         /// txtCustomerName 控件。
@@ -94,6 +85,15 @@ namespace Rapid.SellManager {
         protected global::System.Web.UI.WebControls.DropDownList drpType;
         
         /// <summary>
+        /// txtCustomerOdersNumber 控件。
+        /// </summary>
+        /// <remarks>
+        /// 自动生成的字段。
+        /// 若要进行修改，请将字段声明从设计器文件移到代码隐藏文件。
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.TextBox txtCustomerOdersNumber;
+        
+        /// <summary>
         /// txtMathod 控件。
         /// </summary>
         /// <remarks>
@@ -112,15 +112,6 @@ namespace Rapid.SellManager {
         protected global::System.Web.UI.WebControls.DropDownList drpisSettle;
         
         /// <summary>
-        /// txtInvoiceNumber 控件。
-        /// </summary>
-        /// <remarks>
-        /// 自动生成的字段。
-        /// 若要进行修改，请将字段声明从设计器文件移到代码隐藏文件。
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox txtInvoiceNumber;
-        
-        /// <summary>
         /// txtSHorderNumber 控件。
         /// </summary>
         /// <remarks>
@@ -128,6 +119,33 @@ namespace Rapid.SellManager {
         /// 若要进行修改，请将字段声明从设计器文件移到代码隐藏文件。
         /// </remarks>
         protected global::System.Web.UI.WebControls.TextBox txtSHorderNumber;
+        
+        /// <summary>
+        /// txtDateStart 控件。
+        /// </summary>
+        /// <remarks>
+        /// 自动生成的字段。
+        /// 若要进行修改，请将字段声明从设计器文件移到代码隐藏文件。
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.TextBox txtDateStart;
+        
+        /// <summary>
+        /// txtDateEnd 控件。
+        /// </summary>
+        /// <remarks>
+        /// 自动生成的字段。
+        /// 若要进行修改，请将字段声明从设计器文件移到代码隐藏文件。
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.TextBox txtDateEnd;
+        
+        /// <summary>
+        /// txtOdersNumber 控件。
+        /// </summary>
+        /// <remarks>
+        /// 自动生成的字段。
+        /// 若要进行修改，请将字段声明从设计器文件移到代码隐藏文件。
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.TextBox txtOdersNumber;
         
         /// <summary>
         /// btnSearch 控件。

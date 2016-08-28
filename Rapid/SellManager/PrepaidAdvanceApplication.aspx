@@ -9,7 +9,7 @@
     <script src="../Js/jquery-easyui-1.4/jquery.min.js" type="text/javascript"></script>
 
     <script src="../Js/Main.js" type="text/javascript"></script>
-
+    <script src="../Js/My97DatePicker/WdatePicker.js" type="text/javascript"></script>
     <script type="text/javascript">
 
         function Detail(ordersnumber, deliveryNumber, createtime, isYS, guid) {
@@ -113,28 +113,31 @@
             <input type="hidden" id="hdType" runat="server" />
             <div id="divHeader" style="margin-bottom: 10px;">
                 <div style="width: 100%">
-                    &nbsp&nbsp; 销售订单号：<asp:TextBox ID="txtOdersNumber" runat="server"></asp:TextBox>
-                    &nbsp&nbsp; 客户采购合同号：<asp:TextBox ID="txtCustomerOdersNumber" runat="server"></asp:TextBox>
+                    &nbsp&nbsp; 发票号码：<asp:TextBox runat="server" ID="txtInvoiceNumber"></asp:TextBox>
                     &nbsp&nbsp; 客户名称：<asp:TextBox ID="txtCustomerName" runat="server"></asp:TextBox>
-                    &nbsp&nbsp; 收款类型：<asp:DropDownList ID="drpType" runat="server">
+
+                    &nbsp&nbsp; 收款类型：<asp:DropDownList ID="drpType" runat="server" Width="149px">
                         <asp:ListItem Value="" Text="- - 请选择 - -"></asp:ListItem>
                         <asp:ListItem Value="现金" Text="现金"></asp:ListItem>
                         <asp:ListItem Value="转账" Text="转账"></asp:ListItem>
                     </asp:DropDownList>
+                    &nbsp&nbsp; 客户采购合同号：<asp:TextBox ID="txtCustomerOdersNumber" runat="server"></asp:TextBox>
                 </div>
-                <div style="margin-top: 5px;">
-                    &nbsp&nbsp; 收款方式：<asp:TextBox ID="txtMathod" runat="server"></asp:TextBox>&nbsp&nbsp;
-                是否结清：<asp:DropDownList ID="drpisSettle" runat="server">
-                    <asp:ListItem Value="" Text="- - 请选择 - -"></asp:ListItem>
-                    <asp:ListItem Value="是" Text="是"></asp:ListItem>
-                    <asp:ListItem Value="否" Text="否" Selected="True"></asp:ListItem>
-                </asp:DropDownList>
-                    &nbsp&nbsp; 发票号码：
-                    <asp:TextBox runat="server" ID="txtInvoiceNumber"></asp:TextBox>
+                <div style="margin-top: 10px;">
+                    &nbsp&nbsp; 收款方式：<asp:TextBox ID="txtMathod" runat="server"></asp:TextBox>
+                    &nbsp&nbsp; 是否结清：<asp:DropDownList ID="drpisSettle" runat="server" Width="152px">
+                        <asp:ListItem Value="" Text="- - 请选择 - -"></asp:ListItem>
+                        <asp:ListItem Value="是" Text="是"></asp:ListItem>
+                        <asp:ListItem Value="否" Text="否" Selected="True"></asp:ListItem>
+                    </asp:DropDownList>
+                    &nbsp&nbsp;    送货单号：<asp:TextBox runat="server" ID="txtSHorderNumber"> </asp:TextBox><label style="color: red;">(*按送货单号查询请输全,不支持模糊查询)</label>
                 </div>
-                <div>
-                    &nbsp;&nbsp;  送货单号：<asp:TextBox runat="server" ID="txtSHorderNumber"> </asp:TextBox><label style="color: red;">(*按送货单号查询请输全,不支持模糊查询)</label>
-                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                <div style="margin-top: 10px;">
+                    &nbsp&nbsp; 开始日期：<asp:TextBox runat="server" ID="txtDateStart" onfocus="WdatePicker({skin:'green'})"></asp:TextBox>
+                    &nbsp&nbsp; 结束日期：<asp:TextBox runat="server" ID="txtDateEnd" onfocus="WdatePicker({skin:'green'})"></asp:TextBox>
+                    &nbsp;&nbsp;  销售订单：<asp:TextBox ID="txtOdersNumber" runat="server"></asp:TextBox>
+                </div>
+                <div style="margin-top: 10px; padding-left: 550px;">
                     <asp:Button runat="server" ID="btnSearch" Text="查询" CssClass="button" OnClick="btnSearch_Click" OnClientClick="return search();"
                         Style="margin-right: 10px; margin-left: 10px;" />
                     <input type="button" value="申请" id="btnSQ" style="margin-right: 10px; display: none;" />
@@ -236,10 +239,9 @@
                                 <td>
                                     <%#Eval("备注")%>
                                 </td>
-                                <td>
-                                    <span style="display: <%#Eval("销售订单号").ToString().Equals("合计") ? "none" : "inline"%>;">
-                                        <a href="###" onclick="Detail('<%#Eval("销售订单号")%>','<%#Eval("送货单号") %>',' <%#Eval("创建时间")%>','<%=isYs%>','<%#Eval("guid") %>')">详细</a></span> &nbsp;&nbsp; <span style="display: <%#Eval("销售订单号").ToString().Equals("合计") ? "none" : "inline"%>;">
-                                            <a href="###" onclick="Edit('<%#Eval("guid") %>')">编辑</a></span>
+                                <td nowrap>
+                                    <span style="display: <%#Eval("销售订单号").ToString().Equals("合计") ? "none" : "inline"%>;">&nbsp;<a href="###" onclick="Detail('<%#Eval("销售订单号")%>','<%#Eval("送货单号") %>',' <%#Eval("创建时间")%>','<%=isYs%>','<%#Eval("guid") %>')">详细</a></span>&nbsp;<span style="display: <%#Eval("销售订单号").ToString().Equals("合计") ? "none" : "inline"%>;">
+                                        <a href="###" onclick="Edit('<%#Eval("guid") %>')">编辑</a>&nbsp;</span>
                                 </td>
                             </tr>
                         </ItemTemplate>

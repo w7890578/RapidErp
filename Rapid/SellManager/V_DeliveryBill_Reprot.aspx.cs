@@ -143,7 +143,7 @@ namespace Rapid.SellManager
                 sql += string.Format(" and 送货人 like '%{0}%' ", txtDeliveryPerson.Text.Trim());
             }
             string tempsql = string.Format(@"union all
-select '合计','','','','','','','',sum(数量),'','','',''  from ({0})t", sql);
+select '合计','','','','','','','',sum(数量),'','','','',''  from ({0})t", sql);
             sql = sql + " " + tempsql;
             sql = string.Format(" select * from ({0})t order by 送货单号 desc", sql);
             return sql;

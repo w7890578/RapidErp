@@ -33,15 +33,15 @@
         <table cellpadding="1" cellspacing="1" class="border">
             <tr>
                 <% foreach (System.Data.DataColumn column in DtResult.Columns)
-                   { %>
+                    { %>
                 <td><%=  column.ColumnName %></td>
                 <%} %>
             </tr>
             <%foreach (System.Data.DataRow dr in DtResult.Rows)
-              {%>
+                {%>
             <tr>
                 <% foreach (System.Data.DataColumn column in DtResult.Columns)
-                   { %>
+                    { %>
                 <td><%= dr[column.ColumnName]%></td>
                 <%} %>
             </tr>
@@ -54,7 +54,7 @@
         </div>
         <table cellpadding="1" cellspacing="1" class="border">
             <tr>
-                <td>原材料编号</td>
+                <td>客户物料号</td>
                 <td>1月份</td>
                 <td>2月份</td>
                 <td>3月份</td>
@@ -76,7 +76,7 @@
                 foreach (var model in temp)
                 { %>
             <tr>
-                <td><%=model.MaterilNumber   %></td>
+                <td><%=model.CustomerMaterilNumber   %></td>
                 <td><%=model.January   %></td>
                 <td><%=model.February  %></td>
                 <td><%=model.March     %></td>

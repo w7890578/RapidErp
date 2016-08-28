@@ -17,13 +17,13 @@ namespace Rapid.FinancialManager
         public double August { get; set; }
         public double Count { get; set; }
         public double CountPrice { get; set; }
+        public string CustomerMaterilNumber { get; set; }
         public double December { get; set; }
         public double February { get; set; }
         public double January { get; set; }
         public double July { get; set; }
         public double June { get; set; }
         public double March { get; set; }
-        public string MaterilNumber { get; set; }
         public double May { get; set; }
         public double November { get; set; }
         public double October { get; set; }
@@ -119,7 +119,7 @@ namespace Rapid.FinancialManager
         private DataTable GetBomInfo()
         {
             string sql = @"
-select 包号 PackgeName,产成品编号 ProductNumber,版本 Version,原材料编号 MateriNumber,单机用量 UnitQty
+select 包号 PackgeName,产成品编号 ProductNumber,版本 Version,原材料编号 MateriNumber,单机用量 UnitQty,客户物料号 CustomerMateriNumber
  from [V_BOM_Count]";
             return SqlHelper.GetTable(sql);
         }
@@ -146,14 +146,14 @@ select 包号 PackgeName,产成品编号 ProductNumber,版本 Version,原材料�
                 {
                     foreach (DataRow tempRow in drTemps)
                     {
-                        if (materiNumbers.ContainsKey(tempRow["MateriNumber"].ToString()))
+                        if (materiNumbers.ContainsKey(tempRow["CustomerMateriNumber"].ToString()))
                         {
-                            materiNumbers[tempRow["MateriNumber"].ToString()] +=
+                            materiNumbers[tempRow["CustomerMateriNumber"].ToString()] +=
                                 Convert.ToDouble(tempRow["UnitQty"].ToString()) * qty;
                         }
                         else
                         {
-                            materiNumbers.Add(tempRow["MateriNumber"].ToString(), Convert.ToDouble(tempRow["UnitQty"].ToString()) * qty);
+                            materiNumbers.Add(tempRow["CustomerMateriNumber"].ToString(), Convert.ToDouble(tempRow["UnitQty"].ToString()) * qty);
                         }
                     }
                 }
@@ -170,16 +170,19 @@ select 包号 PackgeName,产成品编号 ProductNumber,版本 Version,原材料�
         private List<MonthMateril> GetRsultModel()
         {
             List<MonthMateril> list = new List<MonthMateril>();
+            //            string sql = @"
+            //select m. MaterialNumber,ISNULL(t.Prcie,0) Prcie from MarerialInfoTable m left join
+            //(select MaterialNumber,max(Prcie)  Prcie from MaterialSupplierProperty group by MaterialNumber)
+            //t on t.MaterialNumber=m.MaterialNumber";
             string sql = @"
-select m. MaterialNumber,ISNULL(t.Prcie,0) Prcie from MarerialInfoTable m left join
-(select MaterialNumber,max(Prcie)  Prcie from MaterialSupplierProperty group by MaterialNumber)
-t on t.MaterialNumber=m.MaterialNumber";
+select distinct mp.CustomerMaterialNumber,isnull( ms.Prcie,0) Prcie from MaterialCustomerProperty  mp inner join MaterialSupplierProperty ms
+on mp.MaterialNumber=ms.MaterialNumber";
             DataTable dt = SqlHelper.GetTable(sql);
             foreach (DataRow dr in dt.Rows)
             {
                 list.Add(new MonthMateril()
                 {
-                    MaterilNumber = dr["MaterialNumber"].ToString(),
+                    CustomerMaterilNumber = dr["CustomerMaterialNumber"].ToString(),
                     UnitPrice = Convert.ToDouble(dr["Prcie"].ToString())
                 });
             }
@@ -313,53 +316,53 @@ order by B.CustomerProductNumber,B.Version
         private void SetValues(MonthMateril monthMateril, List<MonthModel> months)
         {
             //var materialCounts = months[0].MaterialCounts;
-            if (months[0].MaterialCounts.ContainsKey(monthMateril.MaterilNumber))
+            if (months[0].MaterialCounts.ContainsKey(monthMateril.CustomerMaterilNumber))
             {
-                monthMateril.January = months[0].MaterialCounts[monthMateril.MaterilNumber];
+                monthMateril.January = months[0].MaterialCounts[monthMateril.CustomerMaterilNumber];
             }
-            if (months[1].MaterialCounts.ContainsKey(monthMateril.MaterilNumber))
+            if (months[1].MaterialCounts.ContainsKey(monthMateril.CustomerMaterilNumber))
             {
-                monthMateril.February = months[1].MaterialCounts[monthMateril.MaterilNumber];
+                monthMateril.February = months[1].MaterialCounts[monthMateril.CustomerMaterilNumber];
             }
-            if (months[2].MaterialCounts.ContainsKey(monthMateril.MaterilNumber))
+            if (months[2].MaterialCounts.ContainsKey(monthMateril.CustomerMaterilNumber))
             {
-                monthMateril.March = months[2].MaterialCounts[monthMateril.MaterilNumber];
+                monthMateril.March = months[2].MaterialCounts[monthMateril.CustomerMaterilNumber];
             }
-            if (months[3].MaterialCounts.ContainsKey(monthMateril.MaterilNumber))
+            if (months[3].MaterialCounts.ContainsKey(monthMateril.CustomerMaterilNumber))
             {
-                monthMateril.April = months[3].MaterialCounts[monthMateril.MaterilNumber];
+                monthMateril.April = months[3].MaterialCounts[monthMateril.CustomerMaterilNumber];
             }
-            if (months[4].MaterialCounts.ContainsKey(monthMateril.MaterilNumber))
+            if (months[4].MaterialCounts.ContainsKey(monthMateril.CustomerMaterilNumber))
             {
-                monthMateril.May = months[4].MaterialCounts[monthMateril.MaterilNumber];
+                monthMateril.May = months[4].MaterialCounts[monthMateril.CustomerMaterilNumber];
             }
-            if (months[5].MaterialCounts.ContainsKey(monthMateril.MaterilNumber))
+            if (months[5].MaterialCounts.ContainsKey(monthMateril.CustomerMaterilNumber))
             {
-                monthMateril.June = months[5].MaterialCounts[monthMateril.MaterilNumber];
+                monthMateril.June = months[5].MaterialCounts[monthMateril.CustomerMaterilNumber];
             }
-            if (months[6].MaterialCounts.ContainsKey(monthMateril.MaterilNumber))
+            if (months[6].MaterialCounts.ContainsKey(monthMateril.CustomerMaterilNumber))
             {
-                monthMateril.July = months[6].MaterialCounts[monthMateril.MaterilNumber];
+                monthMateril.July = months[6].MaterialCounts[monthMateril.CustomerMaterilNumber];
             }
-            if (months[7].MaterialCounts.ContainsKey(monthMateril.MaterilNumber))
+            if (months[7].MaterialCounts.ContainsKey(monthMateril.CustomerMaterilNumber))
             {
-                monthMateril.August = months[7].MaterialCounts[monthMateril.MaterilNumber];
+                monthMateril.August = months[7].MaterialCounts[monthMateril.CustomerMaterilNumber];
             }
-            if (months[8].MaterialCounts.ContainsKey(monthMateril.MaterilNumber))
+            if (months[8].MaterialCounts.ContainsKey(monthMateril.CustomerMaterilNumber))
             {
-                monthMateril.September = months[8].MaterialCounts[monthMateril.MaterilNumber];
+                monthMateril.September = months[8].MaterialCounts[monthMateril.CustomerMaterilNumber];
             }
-            if (months[9].MaterialCounts.ContainsKey(monthMateril.MaterilNumber))
+            if (months[9].MaterialCounts.ContainsKey(monthMateril.CustomerMaterilNumber))
             {
-                monthMateril.October = months[9].MaterialCounts[monthMateril.MaterilNumber];
+                monthMateril.October = months[9].MaterialCounts[monthMateril.CustomerMaterilNumber];
             }
-            if (months[10].MaterialCounts.ContainsKey(monthMateril.MaterilNumber))
+            if (months[10].MaterialCounts.ContainsKey(monthMateril.CustomerMaterilNumber))
             {
-                monthMateril.November = months[10].MaterialCounts[monthMateril.MaterilNumber];
+                monthMateril.November = months[10].MaterialCounts[monthMateril.CustomerMaterilNumber];
             }
-            if (months[11].MaterialCounts.ContainsKey(monthMateril.MaterilNumber))
+            if (months[11].MaterialCounts.ContainsKey(monthMateril.CustomerMaterilNumber))
             {
-                monthMateril.December = months[11].MaterialCounts[monthMateril.MaterilNumber];
+                monthMateril.December = months[11].MaterialCounts[monthMateril.CustomerMaterilNumber];
             }
         }
 
