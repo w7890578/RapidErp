@@ -1,4 +1,5 @@
-﻿using System;
+﻿using DAL;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
@@ -6,22 +7,21 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.UI.WebControls;
-using DAL;
 
 namespace BLL
 {
     public class ExcelHelper
     {
+        private ExcelHelper()
+        {
+        }
+
         public static ExcelHelper Instance
         {
             get
             {
                 return new ExcelHelper();
             }
-        }
-        private ExcelHelper()
-        {
-
         }
 
         public void ExpExcel(DataTable dt, string fileName)
@@ -41,7 +41,7 @@ namespace BLL
             HttpContext.Current.Response.ContentType = "application/vnd.ms-excel";
             HttpContext.Current.Response.Charset = "GB2312";
             HttpContext.Current.Response.AppendHeader("Content-Disposition", "attachment;filename=" + HttpUtility.UrlEncode(fileName + ".xls", System.Text.Encoding.UTF8).ToString());
-            HttpContext.Current.Response.ContentEncoding = System.Text.Encoding.GetEncoding("GB2312");  //设置输出流为简体中文 
+            HttpContext.Current.Response.ContentEncoding = System.Text.Encoding.GetEncoding("GB2312");  //设置输出流为简体中文
             System.Web.UI.Page page = new System.Web.UI.Page();
             page.EnableViewState = false;
             HttpContext.Current.Response.Write("<meta http-equiv=Content-Type content=\"text/html; charset=GB2312\">");
@@ -51,7 +51,6 @@ namespace BLL
             gvOrders.AllowSorting = false;
             gvOrders.DataSource = dt;
             gvOrders.DataBind();
-
 
             gvOrders.RenderControl(hw);
             HttpContext.Current.Response.Write(sw.ToString());

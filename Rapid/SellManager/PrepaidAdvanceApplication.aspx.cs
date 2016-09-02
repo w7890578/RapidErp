@@ -3,6 +3,8 @@ using DAL;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Text;
+using System.Threading;
 using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
@@ -17,6 +19,14 @@ namespace Rapid.SellManager
         {
             ExcelHelper.Instance.ExpExcel(SqlHelper.GetTable(GetSql()), ToolManager.GetQueryString("ISYS").Equals("1") ? "预收账款" : "应收账款");
             //ToolCode.Tool.ExpExcel(GetSql(), ToolManager.GetQueryString("ISYS").Equals("1") ? "预收账款" : "应收账款");
+        }
+
+        protected void btnExpForSearch_Click(object sender, EventArgs e)
+        {
+            string sql = GetSql();
+            DataTable dt = SqlHelper.GetTable(sql);
+
+            ExpDetailForSearch(dt);
         }
 
         protected void btnSearch_Click(object sender, EventArgs e)
@@ -107,38 +117,6 @@ namespace Rapid.SellManager
             }
         }
 
-        protected void ExpExcel(string sql, string fileName)
-        {
-            string error = string.Empty;
-            DataTable dt = SqlHelper.GetTable(sql, ref error);
-            if (dt.Columns.Contains("Guid"))
-            {
-                dt.Columns.Remove("Guid");
-            }
-            if (dt.Columns.Contains("交期"))
-            {
-                dt.Columns.Remove("交期");
-            }
-            GridView gvOrders = new GridView();
-            HttpContext.Current.Response.Clear();
-            HttpContext.Current.Response.ContentType = "application/vnd.ms-excel";
-            HttpContext.Current.Response.Charset = "GB2312";
-            HttpContext.Current.Response.AppendHeader("Content-Disposition", "attachment;filename=" + HttpUtility.UrlEncode(fileName + ".xls", System.Text.Encoding.UTF8).ToString());
-            HttpContext.Current.Response.ContentEncoding = System.Text.Encoding.GetEncoding("GB2312");  //设置输出流为简体中文
-            System.Web.UI.Page page = new System.Web.UI.Page();
-            page.EnableViewState = false;
-            HttpContext.Current.Response.Write("<meta http-equiv=Content-Type content=\"text/html; charset=GB2312\">");
-            System.IO.StringWriter sw = new System.IO.StringWriter();
-            System.Web.UI.HtmlTextWriter hw = new System.Web.UI.HtmlTextWriter(sw);
-            gvOrders.AllowPaging = false;
-            gvOrders.AllowSorting = false;
-            gvOrders.DataSource = dt;
-            gvOrders.DataBind();
-            gvOrders.RenderControl(hw);
-            HttpContext.Current.Response.Write(sw.ToString());
-            HttpContext.Current.Response.End();
-        }
-
         protected void Page_Load(object sender, EventArgs e)
         {
             //if (ToolManager.GetQueryString("ISYS").Equals("0"))
@@ -176,6 +154,46 @@ update AccountsReceivable set IsApplicationed='是' where guid in ({0}) ", guids
             rpList.DataBind();
 
             //Response.Write(sql);
+        }
+
+        private void ExpDetailForSearch(DataTable dt)
+        {
+            if (dt == null)
+                return;
+            HashSet<string> hashSetOrdersNumber = new HashSet<string>();
+            HashSet<string> hashSetCreateTime = new HashSet<string>();
+            HashSet<string> hashSetDeliveryNumber = new HashSet<string>();
+
+            foreach (DataRow dr in dt.Rows)
+            {
+                hashSetOrdersNumber.Add(dr["销售订单号"].ToString());
+                hashSetCreateTime.Add(dr["创建时间"].ToString());
+                hashSetDeliveryNumber.Add(dr["送货单号"].ToString());
+
+                //                if (isYs != "1")//应收
+                //                {
+                //                    sb.AppendFormat(" and 创建时间='{0}' and 送货单号='{1}' ", dr["创建时间"].ToString(), dr["送货单号"].ToString());
+                //                }
+                //                sb.AppendLine(" union all ");
+            }
+            //            sb.Append(@"select * from (
+            //select va.*, ta.InvoiceNumber as 发票号码, ta.InvoiceDate as 开票日期 from V_AccountsReceivableDetail va
+            //  inner join T_AccountsReceivable_Detail ta on va.guid = ta.guid
+            //)t where 1!=1");
+            StringBuilder sb = new StringBuilder();
+
+            sb.AppendFormat(@"
+                select * from (
+                select va.*,ta.InvoiceNumber as 发票号码,ta.InvoiceDate as 开票日期 from V_AccountsReceivableDetail va
+                inner join T_AccountsReceivable_Detail ta on va.guid=ta.guid
+                )t where t.销售订单号 in ({0})
+                 ", GetString(hashSetOrdersNumber));
+            if (isYs != "1")//应收
+            {
+                sb.AppendFormat(" and 创建时间 in ({0}) and 送货单号 in ({1}) ", GetString(hashSetCreateTime), GetString(hashSetDeliveryNumber));
+            }
+            DataTable dtResult = SqlHelper.GetTable(sb.ToString());
+            ExcelHelper.Instance.ExpExcel(dtResult, isYs.Equals("1") ? "预收账款明细" : "应收账款明细");
         }
 
         private string GetSql()
@@ -289,6 +307,16 @@ order by 创建时间 desc
 ", condinton, viewName);
             }
             return sql;
+        }
+
+        private string GetString(HashSet<String> hashSet)
+        {
+            StringBuilder sb = new StringBuilder();
+            foreach (var item in hashSet)
+            {
+                sb.AppendFormat("'{0}',", item);
+            }
+            return sb.ToString().TrimEnd(',');
         }
 
         //public void contrlRepeater()

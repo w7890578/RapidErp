@@ -3639,6 +3639,13 @@
     <Compile Include="StoreroomManager\WarehousePerformanceReviewYearReport.aspx.designer.cs">
       <DependentUpon>WarehousePerformanceReviewYearReport.aspx</DependentUpon>
     </Compile>
+    <Compile Include="ToolCode\CommonExp.aspx.cs">
+      <DependentUpon>CommonExp.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="ToolCode\CommonExp.aspx.designer.cs">
+      <DependentUpon>CommonExp.aspx</DependentUpon>
+    </Compile>
     <Compile Include="ToolCode\Tool.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -6893,6 +6900,7 @@
     <None Include="Text\项目信息导入模板.xls" />
     <Content Include="StoreroomManager\WarehousePerformanceReviewMonthReport.aspx" />
     <Content Include="StoreroomManager\WarehousePerformanceReviewYearReport.aspx" />
+    <Content Include="ToolCode\CommonExp.aspx" />
     <Content Include="Web.config">
       <SubType>Designer</SubType>
     </Content>

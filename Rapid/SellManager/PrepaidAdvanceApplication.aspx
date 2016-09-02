@@ -145,7 +145,7 @@
                         OnClick="btnExpExcel_Click" />
 
                     &nbsp;&nbsp;<asp:Button runat="server" ID="Button1" Text="导出未开票详细" CssClass="button" OnClick="Button1_Click" />
-
+                    &nbsp;&nbsp;<asp:Button runat="server" ID="btnExpForSearch" Text="按查询内容导出明细" CssClass="button" OnClick="btnExpForSearch_Click" />
                     &nbsp;&nbsp;<asp:Button runat="server" ID="Button2" Text="导出所有明细" CssClass="button" OnClick="Button2_Click" />
                     &nbsp;&nbsp;<label style="color: Red;" id="lbMsg" runat="server"></label>
                 </div>
@@ -240,7 +240,9 @@
                                     <%#Eval("备注")%>
                                 </td>
                                 <td nowrap>
-                                    <span style="display: <%#Eval("销售订单号").ToString().Equals("合计") ? "none" : "inline"%>;">&nbsp;<a href="###" onclick="Detail('<%#Eval("销售订单号")%>','<%#Eval("送货单号") %>',' <%#Eval("创建时间")%>','<%=isYs%>','<%#Eval("guid") %>')">详细</a></span>&nbsp;<span style="display: <%#Eval("销售订单号").ToString().Equals("合计") ? "none" : "inline"%>;">
+                                    <span style="display: <%#Eval("销售订单号").ToString().Equals("合计") ? "none" : "inline"%>;">&nbsp;
+                                        <a href="###" onclick="Detail('<%#Eval("销售订单号")%>','<%#Eval("送货单号") %>',' <%#Eval("创建时间")%>','<%=isYs%>','<%#Eval("guid") %>')">详细</a></span>
+                                    &nbsp;<span style="display: <%#Eval("销售订单号").ToString().Equals("合计") ? "none" : "inline"%>;">
                                         <a href="###" onclick="Edit('<%#Eval("guid") %>')">编辑</a>&nbsp;</span>
                                 </td>
                             </tr>
