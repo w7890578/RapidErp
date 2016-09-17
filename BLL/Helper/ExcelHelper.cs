@@ -2,8 +2,10 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.UI.WebControls;
@@ -22,6 +24,32 @@ namespace BLL
             {
                 return new ExcelHelper();
             }
+        }
+
+        public void ExpExcel(string filePath, Dictionary<string, DataTable> tables)
+        {
+            if (!System.IO.File.Exists(filePath))
+            {
+                System.IO.File.Create(filePath);
+            }
+            string fileName = Path.GetFileName(filePath);
+
+            NPOIExcelHelper.ExpExcel(filePath, tables);
+            Thread.Sleep(100);
+            FileStream fileStream = new FileStream(filePath, FileMode.Open);
+            long fileSize = fileStream.Length;
+            byte[] fileBuffer = new byte[fileSize];
+            fileStream.Read(fileBuffer, 0, (int)fileSize);
+            //如果不写fileStream.Close()语句，用户在下载过程中选择取消，将不能再次下载
+            fileStream.Close();
+
+            HttpContext.Current.Response.ContentType = "application/octet-stream";
+            HttpContext.Current.Response.AppendHeader("Content-Disposition", "attachment;filename=" + HttpUtility.UrlEncode(fileName, Encoding.UTF8));
+            HttpContext.Current.Response.AddHeader("Content-Length", fileSize.ToString());
+
+            HttpContext.Current.Response.BinaryWrite(fileBuffer);
+            HttpContext.Current.Response.End();
+            HttpContext.Current.Response.Close();
         }
 
         public void ExpExcel(DataTable dt, string fileName)

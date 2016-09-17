@@ -80,10 +80,6 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="dotnetCHARTING, Version=5.0.3069.22289, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>F:\123\dotnetCHARTING.dll</HintPath>
-    </Reference>
     <Reference Include="Newtonsoft.Json, Version=6.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\packages\Newtonsoft.Json.6.0.8\lib\net45\Newtonsoft.Json.dll</HintPath>
@@ -1372,6 +1368,7 @@
     </Compile>
     <Compile Include="FinancialManager\Report_CustomerProductSaleMonth.aspx.cs">
       <DependentUpon>Report_CustomerProductSaleMonth.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
     </Compile>
     <Compile Include="FinancialManager\Report_CustomerProductSaleMonth.aspx.designer.cs">
       <DependentUpon>Report_CustomerProductSaleMonth.aspx</DependentUpon>
@@ -3330,6 +3327,7 @@
     </Compile>
     <Compile Include="StoreroomManager\StockInventoryLogDetail.aspx.cs">
       <DependentUpon>StockInventoryLogDetail.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
     </Compile>
     <Compile Include="StoreroomManager\StockInventoryLogDetail.aspx.designer.cs">
       <DependentUpon>StockInventoryLogDetail.aspx</DependentUpon>

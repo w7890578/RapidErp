@@ -1,12 +1,12 @@
-﻿using NPOI.XSSF.UserModel;
+﻿using NPOI.HSSF.UserModel;
+using NPOI.SS.Formula.Eval;
 using NPOI.SS.UserModel;
-using NPOI.HSSF.UserModel;
+using NPOI.XSSF.UserModel;
 using System;
 using System.Collections.Generic;
 using System.Data;
 using System.IO;
 using System.Text;
-using NPOI.SS.Formula.Eval;
 using System.Web.UI.WebControls;
 
 namespace BLL
@@ -18,6 +18,25 @@ namespace BLL
     /// </summary>
     public class NPOIExcelHelper
     {
+        /// <summary>
+        /// 将DataTable中的数据导入Excel文件中
+        /// </summary>
+        /// <param name="dt"></param>
+        /// <param name="file"></param>
+        public static void DataTable2Excel(DataTable dt, string file, string sheetName)
+        {
+            IWorkbook workbook = new XSSFWorkbook();
+            CreateSheet(workbook, dt, sheetName);
+            MemoryStream stream = new MemoryStream();
+            workbook.Write(stream);
+            byte[] buffer = stream.ToArray();
+            using (FileStream fs = new FileStream(file, FileMode.Create, FileAccess.Write))
+            {
+                fs.Write(buffer, 0, buffer.Length);
+                fs.Flush();
+            }
+        }
+
         /// <summary>
         /// 将Excel文件中的数据读出到DataTable中
         /// </summary>
@@ -31,13 +50,154 @@ namespace BLL
             {
                 //office2003 HSSFWorkbook
                 workbook = new HSSFWorkbook(fs);
-                // XSSFWorkbook 
+                // XSSFWorkbook
             }
             ISheet sheet = workbook.GetSheetAt(0);
             dt = Export2DataTable(sheet, 0, true);
             return dt;
-
         }
+
+        public static void ExpExcel(string file, Dictionary<string, DataTable> sheets)
+        {
+            IWorkbook workbook = new XSSFWorkbook();
+            foreach (var item in sheets)
+            {
+                CreateSheet(workbook, item.Value, item.Key);
+            }
+            MemoryStream stream = new MemoryStream();
+            workbook.Write(stream);
+            byte[] buffer = stream.ToArray();
+            using (FileStream fs = new FileStream(file, FileMode.Create, FileAccess.Write))
+            {
+                fs.Write(buffer, 0, buffer.Length);
+                fs.Flush();
+            }
+        }
+
+        /// <summary>
+        /// 读取Excel
+        /// </summary>
+        /// <param name="fullPath">文件全路径</param>
+        /// <param name="extension">扩展名</param>
+        /// <returns></returns>
+        public static DataSet GetDataFromExcel(string fullPath, string extension)
+        {
+            DataSet ds = new DataSet();
+            DataTable dt = new DataTable();
+            try
+            { dt = getDataTableFromExcel2003(fullPath); }
+            catch (Exception ex)
+            {
+                dt = getDataTableFromExcel2007(fullPath);
+            }
+            //if (extension.Equals(".xls"))
+            //{
+            //    dt = getDataTableFromExcel2003(fullPath);
+            //}
+            //else if (extension.Equals(".xlsx"))
+            //{
+            //    dt = getDataTableFromExcel2007(fullPath);
+            //}
+
+            ds.Tables.Add(dt);
+            return ds;
+        }
+
+        public static DataTable getDataTableFromExcel2003(string fullpath)
+        {
+            FileStream stream = File.Open(fullpath, FileMode.Open, FileAccess.Read);
+
+            HSSFWorkbook workbook = new HSSFWorkbook(stream);
+            ISheet sheet = workbook.GetSheetAt(0);
+            DataTable table = new DataTable();
+            //获取sheet的首行
+            IRow headerRow = sheet.GetRow(0);
+            int cellCount = headerRow.LastCellNum;
+            for (int i = headerRow.FirstCellNum; i < cellCount; i++)
+            {
+                DataColumn column = new DataColumn(headerRow.GetCell(i).StringCellValue);
+                table.Columns.Add(column);
+            }
+            try
+            {
+                int rowCount = sheet.LastRowNum + 1;
+                for (int i = (sheet.FirstRowNum + 1); i < sheet.LastRowNum + 1; i++)
+                {
+                    IRow row = sheet.GetRow(i);
+                    DataRow dataRow = table.NewRow();
+                    for (int j = row.FirstCellNum; j < cellCount; j++)
+                    {
+                        if (row.GetCell(j) != null)
+                            dataRow[j] = row.GetCell(j).ToString();
+                    }
+                    table.Rows.Add(dataRow);
+                }
+                //stream.Close();
+                //File.Delete(fullpath);
+            }
+            catch (Exception ex)
+            { }
+            finally
+            {
+                stream.Dispose();
+                stream.Close();
+                File.Delete(fullpath);
+            }
+
+            return table;
+        }
+
+        public static DataTable getDataTableFromExcel2007(string fullpath)
+        {
+            FileStream stream = File.Open(fullpath, FileMode.Open, FileAccess.Read);
+            XSSFWorkbook workbook = new XSSFWorkbook(stream);
+            ISheet sheet = workbook.GetSheetAt(0);
+            DataTable table = new DataTable();
+            IRow headerRow = sheet.GetRow(0);
+            int cellCount = headerRow.LastCellNum;
+            for (int i = headerRow.FirstCellNum; i < cellCount; i++)
+            {
+                DataColumn column = new DataColumn(headerRow.GetCell(i).StringCellValue);
+                table.Columns.Add(column);
+            }
+            int rowCount = sheet.LastRowNum + 1;
+            for (int i = (sheet.FirstRowNum + 1); i < sheet.LastRowNum + 1; i++)
+            {
+                IRow row = sheet.GetRow(i);
+                DataRow dataRow = table.NewRow();
+                for (int j = row.FirstCellNum; j < cellCount; j++)
+                {
+                    if (row.GetCell(j) != null)
+                        dataRow[j] = row.GetCell(j).ToString();
+                }
+                table.Rows.Add(dataRow);
+            }
+            stream.Close();
+            File.Delete(fullpath);
+            return table;
+        }
+
+        private static void CreateSheet(IWorkbook workbook, DataTable dt, string sheetName)
+        {
+            ISheet sheet = workbook.CreateSheet(sheetName);
+            IRow header = sheet.CreateRow(0);
+            for (int i = 0; i < dt.Columns.Count; i++)
+            {
+                ICell cell = header.CreateCell(i);
+                cell.SetCellValue(dt.Columns[i].ColumnName);
+            }
+            //数据
+            for (int i = 0; i < dt.Rows.Count; i++)
+            {
+                IRow row = sheet.CreateRow(i + 1);
+                for (int j = 0; j < dt.Columns.Count; j++)
+                {
+                    ICell cell = row.CreateCell(j);
+                    cell.SetCellValue(dt.Rows[i][j].ToString());
+                }
+            }
+        }
+
         /// <summary>
         /// 将指定sheet中的数据导入到datatable中
         /// </summary>
@@ -78,7 +238,6 @@ namespace BLL
                             DataColumn column = new DataColumn(headerRow.GetCell(i).ToString());
                             dt.Columns.Add(column);
                         }
-
                     }
                 }
                 int rowCount = sheet.LastRowNum;
@@ -103,25 +262,29 @@ namespace BLL
                                 case CellType.Boolean:
                                     dtRow[j] = Convert.ToString(row.GetCell(j).BooleanCellValue);
                                     break;
+
                                 case CellType.Error:
                                     dtRow[j] = ErrorEval.GetText(row.GetCell(j).ErrorCellValue);
                                     break;
+
                                 case CellType.Formula:
                                     switch (row.GetCell(j).CachedFormulaResultType)
                                     {
-
                                         case CellType.Boolean:
                                             dtRow[j] = Convert.ToString(row.GetCell(j).BooleanCellValue);
 
                                             break;
+
                                         case CellType.Error:
                                             dtRow[j] = ErrorEval.GetText(row.GetCell(j).ErrorCellValue);
 
                                             break;
+
                                         case CellType.Numeric:
                                             dtRow[j] = Convert.ToString(row.GetCell(j).NumericCellValue);
 
                                             break;
+
                                         case CellType.String:
                                             string strFORMULA = row.GetCell(j).StringCellValue;
                                             if (strFORMULA != null && strFORMULA.Length > 0)
@@ -133,11 +296,13 @@ namespace BLL
                                                 dtRow[j] = null;
                                             }
                                             break;
+
                                         default:
                                             dtRow[j] = "";
                                             break;
                                     }
                                     break;
+
                                 case CellType.Numeric:
                                     if (DateUtil.IsCellDateFormatted(row.GetCell(j)))
                                     {
@@ -148,72 +313,35 @@ namespace BLL
                                         dtRow[j] = Convert.ToDouble(row.GetCell(j).NumericCellValue);
                                     }
                                     break;
+
                                 case CellType.String:
                                     string str = row.GetCell(j).StringCellValue;
                                     if (!string.IsNullOrEmpty(str))
                                     {
-
                                         dtRow[j] = Convert.ToString(str);
-
-
                                     }
                                     else
                                     {
                                         dtRow[j] = null;
                                     }
                                     break;
+
                                 default:
                                     dtRow[j] = "";
                                     break;
                             }
-
                         }
                     }
                     dt.Rows.Add(dtRow);
                 }
-
             }
             catch (Exception)
             {
-
                 return null;
             }
             return dt;
         }
-        /// <summary>
-        /// 将DataTable中的数据导入Excel文件中
-        /// </summary>
-        /// <param name="dt"></param>
-        /// <param name="file"></param>
-        public static void DataTable2Excel(DataTable dt, string file, string sheetName)
-        {
-            IWorkbook workbook = new XSSFWorkbook();
-            ISheet sheet = workbook.CreateSheet(sheetName);
-            IRow header = sheet.CreateRow(0);
-            for (int i = 0; i < dt.Columns.Count; i++)
-            {
-                ICell cell = header.CreateCell(i);
-                cell.SetCellValue(dt.Columns[i].ColumnName);
-            }
-            //数据
-            for (int i = 0; i < dt.Rows.Count; i++)
-            {
-                IRow row = sheet.CreateRow(i + 1);
-                for (int j = 0; j < dt.Columns.Count; j++)
-                {
-                    ICell cell = row.CreateCell(j);
-                    cell.SetCellValue(dt.Rows[i][j].ToString());
-                }
-            }
-            MemoryStream stream = new MemoryStream();
-            workbook.Write(stream);
-            byte[] buffer = stream.ToArray();
-            using (FileStream fs = new FileStream(file, FileMode.Create, FileAccess.Write))
-            {
-                fs.Write(buffer, 0, buffer.Length);
-                fs.Flush();
-            }
-        }
+
         /// <summary>
         /// 获取单元格类型
         /// </summary>
@@ -229,130 +357,29 @@ namespace BLL
             {
                 case CellType.Blank:
                     return null;
+
                 case CellType.Boolean:
                     return cell.BooleanCellValue;
+
                 case CellType.Error:
                     return cell.ErrorCellValue;
 
                 case CellType.Numeric:
                     return cell.NumericCellValue;
+
                 case CellType.String:
                     return cell.StringCellValue;
+
                 case CellType.Formula:
                 default:
                     return "=" + cell.StringCellValue;
             }
         }
 
-
-        /// <summary>
-        /// 读取Excel
-        /// </summary>
-        /// <param name="fullPath">文件全路径</param>
-        /// <param name="extension">扩展名</param>
-        /// <returns></returns>
-        public static DataSet GetDataFromExcel(string fullPath, string extension)
-        {
-            DataSet ds = new DataSet();
-            DataTable dt = new DataTable();
-            try
-            { dt = getDataTableFromExcel2003(fullPath); }
-            catch (Exception ex)
-            {
-                dt = getDataTableFromExcel2007(fullPath);
-            }
-            //if (extension.Equals(".xls"))
-            //{
-            //    dt = getDataTableFromExcel2003(fullPath);
-            //}
-            //else if (extension.Equals(".xlsx"))
-            //{
-            //    dt = getDataTableFromExcel2007(fullPath);
-            //}
-
-            ds.Tables.Add(dt);
-            return ds;
-        }
-
-        public static DataTable getDataTableFromExcel2007(string fullpath)
-        {
-            FileStream stream = File.Open(fullpath, FileMode.Open, FileAccess.Read);
-            XSSFWorkbook workbook = new XSSFWorkbook(stream);
-            ISheet sheet = workbook.GetSheetAt(0);
-            DataTable table = new DataTable();
-            IRow headerRow = sheet.GetRow(0);
-            int cellCount = headerRow.LastCellNum;
-            for (int i = headerRow.FirstCellNum; i < cellCount; i++)
-            {
-                DataColumn column = new DataColumn(headerRow.GetCell(i).StringCellValue);
-                table.Columns.Add(column);
-            }
-            int rowCount = sheet.LastRowNum + 1;
-            for (int i = (sheet.FirstRowNum + 1); i < sheet.LastRowNum + 1; i++)
-            {
-                IRow row = sheet.GetRow(i);
-                DataRow dataRow = table.NewRow();
-                for (int j = row.FirstCellNum; j < cellCount; j++)
-                {
-                    if (row.GetCell(j) != null)
-                        dataRow[j] = row.GetCell(j).ToString();
-                }
-                table.Rows.Add(dataRow);
-            }
-            stream.Close();
-            File.Delete(fullpath);
-            return table;
-        }
-        public static DataTable getDataTableFromExcel2003(string fullpath)
-        {
-            FileStream stream = File.Open(fullpath, FileMode.Open, FileAccess.Read);
-
-            HSSFWorkbook workbook = new HSSFWorkbook(stream);
-            ISheet sheet = workbook.GetSheetAt(0);
-            DataTable table = new DataTable();
-            //获取sheet的首行
-            IRow headerRow = sheet.GetRow(0);
-            int cellCount = headerRow.LastCellNum;
-            for (int i = headerRow.FirstCellNum; i < cellCount; i++)
-            {
-                DataColumn column = new DataColumn(headerRow.GetCell(i).StringCellValue);
-                table.Columns.Add(column);
-            }
-            try
-            {
-                int rowCount = sheet.LastRowNum + 1;
-                for (int i = (sheet.FirstRowNum + 1); i < sheet.LastRowNum + 1; i++)
-                {
-                    IRow row = sheet.GetRow(i);
-                    DataRow dataRow = table.NewRow();
-                    for (int j = row.FirstCellNum; j < cellCount; j++)
-                    {
-                        if (row.GetCell(j) != null)
-                            dataRow[j] = row.GetCell(j).ToString();
-                    }
-                    table.Rows.Add(dataRow);
-                }
-                //stream.Close();
-                //File.Delete(fullpath);
-
-
-            }
-            catch (Exception ex)
-            { }
-            finally
-            {
-                stream.Dispose();
-                stream.Close();
-                File.Delete(fullpath);
-            }
-
-            return table;
-        }
         //public static DataTable ReadExcel(FileUpload fuUpload)
         //{
         //    if (fuUpload.HasFile)
         //    {
-
         //        //根据路径通过已存在的excel来创建HSSFWorkbook，即整个excel文档
         //        XSSFWorkbook workbook = new XSSFWorkbook(fuUpload.FileContent);
 
@@ -396,4 +423,3 @@ namespace BLL
         //}
     }
 }
-

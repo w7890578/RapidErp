@@ -56,52 +56,24 @@ namespace Rapid.FinancialManager
 
         protected void btnBom_Click(object sender, EventArgs e)
         {
-            List<MonthMateril> resultList = GetRsultModel();
-
-            List<MonthModel> months = new List<MonthModel>() {
-                new MonthModel ("January","01","1月份"),
-                new MonthModel ("February","02","2月份"),
-                new MonthModel ("March","03","3月份"),
-                new MonthModel ("April","04","4月份"),
-                new MonthModel ("May","05","5月份"),
-                new MonthModel ("June","06","6月份"),
-                new MonthModel ("July","07","7月份"),
-                new MonthModel ("August","08","8月份"),
-                new MonthModel ("September","09","9月份"),
-                new MonthModel ("October","10","10月份"),
-                new MonthModel ("November","11","11月份"),
-                new MonthModel ("December","12","12月份")
-            };
-            DtResult = GetTable();
-            DtProduct = GetProduct();
-            DtBomInfo = GetBomInfo();
-            for (int i = 1; i <= 12; i++)
-            {
-                foreach (DataRow dr in DtResult.Rows)
-                {
-                    if (!dr[0].ToString().Equals("合计"))
-                    {
-                        string columnName = i.ToString() + "月份";
-                        //dr[columnName]
-                        //months[i-1].MaterialCounts
-                        var value = GetMateriNumbers(dr["产成品编号"].ToString(), dr["版本"].ToString(), Convert.ToDouble(dr[columnName].ToString()));
-                        SetValue(months[i - 1], value);
-                    }
-                }
-            }
-
-            Union(resultList, months);
-            MonthMaterils = resultList;
+            SetMonthMaterils();
         }
 
         protected void btnExp_Click(object sender, EventArgs e)
         {
-            DtResult = GetTable();
-            ExcelHelper.Instance.ExpExcel(DtResult, "客户产成品销售月度报表");
+            string filePath = Server.MapPath("~/Upload/客户产成品销售月度报表.xls");
+            Dictionary<string, DataTable> results = new Dictionary<string, DataTable>();
+            SetMonthMaterils();
+            DataTable dtBOM = ConverToDataTable(MonthMaterils);
+            results.Add("客户产成品销售月报表", DtResult);
+            results.Add("产成品分解为原材料销售月度报表", dtBOM);
+            ExcelHelper.Instance.ExpExcel(filePath, results);
+            //ExcelHelper.Instance.ExpExcel(DtResult, "客户产成品销售月度报表");
         }
 
         protected void btnSearch_Click(object sender, EventArgs e)
         {
+            MonthMaterils = new List<MonthMateril>();
             Bind();
         }
 
@@ -113,7 +85,52 @@ namespace Rapid.FinancialManager
 
         private void Bind()
         {
+            MonthMaterils = new List<MonthMateril>();
             DtResult = GetTable();
+        }
+
+        private DataTable ConverToDataTable(List<MonthMateril> list)
+        {
+            DataTable dt = new DataTable();
+            dt.Columns.Add("客户物料号");
+            dt.Columns.Add("1月份");
+            dt.Columns.Add("2月份");
+            dt.Columns.Add("3月份");
+            dt.Columns.Add("4月份");
+            dt.Columns.Add("5月份");
+            dt.Columns.Add("6月份");
+            dt.Columns.Add("7月份");
+            dt.Columns.Add("8月份");
+            dt.Columns.Add("9月份");
+            dt.Columns.Add("10月份");
+            dt.Columns.Add("11月份");
+            dt.Columns.Add("12月份");
+            dt.Columns.Add("数量合计");
+            dt.Columns.Add("采购单价");
+            dt.Columns.Add("采购单价合计");
+            var temp = list.OrderByDescending(t => t.Count).ToList();
+            foreach (MonthMateril model in temp)
+            {
+                DataRow dr = dt.NewRow();
+                dr[0] = model.CustomerMaterilNumber;
+                dr[1] = model.January;
+                dr[2] = model.February;
+                dr[3] = model.March;
+                dr[4] = model.April;
+                dr[5] = model.May;
+                dr[6] = model.June;
+                dr[7] = model.July;
+                dr[8] = model.August;
+                dr[9] = model.September;
+                dr[10] = model.October;
+                dr[11] = model.November;
+                dr[12] = model.December;
+                dr[13] = model.Count;
+                dr[14] = model.UnitPrice;
+                dr[15] = model.CountPrice;
+                dt.Rows.Add(dr);
+            }
+            return dt;
         }
 
         private DataTable GetBomInfo()
@@ -124,9 +141,22 @@ select 包号 PackgeName,产成品编号 ProductNumber,版本 Version,原材料�
             return SqlHelper.GetTable(sql);
         }
 
-        private Dictionary<string, double> GetMateriNumbers(string productNumber, string version, double qty)
+        private Dictionary<string, double> GetMateriNumbers(string productNumber, string version, double qty, string customerProductNumber)
         {
             Dictionary<string, double> materiNumbers = new Dictionary<string, double>();
+            //原材料没有version
+            if (string.IsNullOrEmpty(version))
+            {
+                if (materiNumbers.ContainsKey(customerProductNumber))
+                {
+                    materiNumbers[customerProductNumber] += qty;
+                }
+                else
+                {
+                    materiNumbers.Add(customerProductNumber, qty);
+                }
+                return materiNumbers;
+            }
 
             DataRow[] drs = DtProduct.Select("ProductNumber='" + productNumber + "' and Version='" + version + "'");
             if (drs != null && drs.Count() > 0)
@@ -167,6 +197,10 @@ select 包号 PackgeName,产成品编号 ProductNumber,版本 Version,原材料�
             return SqlHelper.GetTable(sql);
         }
 
+        /// <summary>
+        /// 获取客户物料编号对应的单价
+        /// </summary>
+        /// <returns></returns>
         private List<MonthMateril> GetRsultModel()
         {
             List<MonthMateril> list = new List<MonthMateril>();
@@ -174,9 +208,10 @@ select 包号 PackgeName,产成品编号 ProductNumber,版本 Version,原材料�
             //select m. MaterialNumber,ISNULL(t.Prcie,0) Prcie from MarerialInfoTable m left join
             //(select MaterialNumber,max(Prcie)  Prcie from MaterialSupplierProperty group by MaterialNumber)
             //t on t.MaterialNumber=m.MaterialNumber";
-            string sql = @"
-select distinct mp.CustomerMaterialNumber,isnull( ms.Prcie,0) Prcie from MaterialCustomerProperty  mp inner join MaterialSupplierProperty ms
-on mp.MaterialNumber=ms.MaterialNumber";
+            string sql = @"select t.CustomerMaterialNumber,max(t.Prcie) Prcie from (
+select distinct mp.CustomerMaterialNumber,isnull( ms.Prcie,0) Prcie from MaterialCustomerProperty  mp
+inner join MaterialSupplierProperty ms
+on mp.MaterialNumber=ms.MaterialNumber)t group by t.CustomerMaterialNumber";
             DataTable dt = SqlHelper.GetTable(sql);
             foreach (DataRow dr in dt.Rows)
             {
@@ -237,7 +272,7 @@ with A as(
 	    送货日期           as DeliveryDate,
 	    数量              as  DeliveryQty
     from  V_DeliveryBill_Reprot
-    where 版本!=''and 送货日期 like '%{0}%'
+    where    送货日期 like '%{0}%'
 ),
 --总数量
  B as (
@@ -247,13 +282,19 @@ with A as(
 C as (
 	select   CustomerProductNumber,Version ,c.CustomerName from ProductCustomerProperty p inner join Customer c on p.CustomerId=c.CustomerId
 ),
---销售未税单价
+--产成品销售未税单价
 D as (
 	select t.productNumber,t.Version,isnull(m.UnitPrice,0) UnitPrice,m.QuoteNumber from (
 	select productNumber,version,MAX(QuoteNumber) QuoteNumber from MachineQuoteDetail  where    Hierarchy =0 and ISNULL(Version,'')!=''
 	group by productNumber,version
 	) t left join MachineQuoteDetail m on t.ProductNumber=m.ProductNumber and t.Version=m.Version and t.QuoteNumber=m.QuoteNumber
 	where m.Hierarchy =0
+),
+--原材料销售未税单价
+E as (
+	select t.productNumber,'' as Version,isnull(tq.UnitPrice,0) UnitPrice,tq.QuoteNumber from (
+	select ProductNumber,MAX(QuoteNumber) QuoteNumber  from TradingQuoteDetail
+	group by productNumber)t inner join TradingQuoteDetail tq on t.ProductNumber=tq.ProductNumber and t.QuoteNumber=tq.QuoteNumber
 )
 --各个月份
 {1}
@@ -264,11 +305,23 @@ B.ProductNumber as 产成品编号,
 B.Version as 版本
 {2},
 B.Qty  as 数量合计,
-D.UnitPrice as 销售未税单价,
-B.Qty*D.UnitPrice as 销售未税合计--,
+case
+    when isnull(B.Version,'')=''
+        then E.UnitPrice
+    else
+        D.UnitPrice
+    end  as 销售未税单价,
+case
+    when isnull(B.Version,'')=''
+        then E.UnitPrice*B.Qty
+    else
+        D.UnitPrice*B.Qty
+    end  as 销售未税合计
+--,
 --D.QuoteNumber as 最新报价单
 
 from B
+left join E on B.ProductNumber=E.ProductNumber and B.Version=E.Version
 left join D on B.ProductNumber=D.ProductNumber and B.Version=D.Version
 left join C on B.CustomerProductNumber=C.CustomerProductNumber and B.Version=C.Version
 {3}
@@ -295,6 +348,47 @@ order by B.CustomerProductNumber,B.Version
             dt.Rows.Add(drSumRow);
 
             return dt;
+        }
+
+        private void SetMonthMaterils()
+        {
+            List<MonthMateril> resultList = GetRsultModel();
+
+            List<MonthModel> months = new List<MonthModel>() {
+                new MonthModel ("January","01","1月份"),
+                new MonthModel ("February","02","2月份"),
+                new MonthModel ("March","03","3月份"),
+                new MonthModel ("April","04","4月份"),
+                new MonthModel ("May","05","5月份"),
+                new MonthModel ("June","06","6月份"),
+                new MonthModel ("July","07","7月份"),
+                new MonthModel ("August","08","8月份"),
+                new MonthModel ("September","09","9月份"),
+                new MonthModel ("October","10","10月份"),
+                new MonthModel ("November","11","11月份"),
+                new MonthModel ("December","12","12月份")
+            };
+            DtResult = GetTable();
+            DtProduct = GetProduct();
+            DtBomInfo = GetBomInfo();
+            for (int i = 1; i <= 12; i++)
+            {
+                foreach (DataRow dr in DtResult.Rows)
+                {
+                    if (!dr[0].ToString().Equals("合计"))
+                    {
+                        string columnName = i.ToString() + "月份";
+                        //dr[columnName]
+                        //months[i-1].MaterialCounts
+                        //获取产成品下的原材料数量
+                        var value = GetMateriNumbers(dr["产成品编号"].ToString(), dr["版本"].ToString(), Convert.ToDouble(dr[columnName].ToString()), dr["客户产成品编号"].ToString());
+                        SetValue(months[i - 1], value);
+                    }
+                }
+            }
+
+            Union(resultList, months);
+            MonthMaterils = resultList;
         }
 
         private void SetValue(MonthModel monthModel, Dictionary<string, double> value)
