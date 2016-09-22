@@ -1,18 +1,19 @@
-﻿using System;
+﻿using BLL;
+using DAL;
+using Rapid.ToolCode;
+using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
-using BLL;
-using System.Data;
-using DAL;
-using Rapid.ToolCode;
 
 namespace Rapid.ProduceManager
 {
     public partial class ProductPlanDetailList : System.Web.UI.Page
     {
         public static string type = string.Empty;
+
         protected void Page_Load(object sender, EventArgs e)
         {
             string sql = string.Empty;
@@ -42,25 +43,22 @@ namespace Rapid.ProduceManager
                     lblTargetFinishManhour.Text = dr["目标完成工时"] == null ? "" : dr["目标完成工时"].ToString();
                     lblAuditor.Text = dr["审核人"] == null ? "" : dr["审核人"].ToString();
                     type = dr["开工单类型"] == null ? "" : dr["开工单类型"].ToString();
-
                 }
                 Bind();
-//                sql = string.Format(@" delete ProductPlan where PlanNumber ='{0}'",
-//plannumber);
-//                bool result = SqlHelper.ExecuteSql(sql, ref error);
-//                if (result)
-//                {
-//                    Tool.WriteLog(Tool.LogType.Operating, "删除开工单明细" +ToolManager.ReplaceSingleQuotesToBlank(plannumber) , "删除成功");
-//                    return;
-//                }
-//                else
-//                {
-//                    Tool.WriteLog(Tool.LogType.Operating, "删除开工单明细" + ToolManager.ReplaceSingleQuotesToBlank(plannumber), "删除失败！原因" + error);
-//                    return;
-//                }
+                //                sql = string.Format(@" delete ProductPlan where PlanNumber ='{0}'",
+                //plannumber);
+                //                bool result = SqlHelper.ExecuteSql(sql, ref error);
+                //                if (result)
+                //                {
+                //                    Tool.WriteLog(Tool.LogType.Operating, "删除开工单明细" +ToolManager.ReplaceSingleQuotesToBlank(plannumber) , "删除成功");
+                //                    return;
+                //                }
+                //                else
+                //                {
+                //                    Tool.WriteLog(Tool.LogType.Operating, "删除开工单明细" + ToolManager.ReplaceSingleQuotesToBlank(plannumber), "删除失败！原因" + error);
+                //                    return;
+                //                }
             }
-
-
         }
 
         private void Bind()
@@ -70,7 +68,7 @@ namespace Rapid.ProduceManager
             string plannumber = ToolManager.GetQueryString("PlanNumber");
             string condition = "where PlanNumber='" + plannumber + "'";
             sql = string.Format(@"select * from V_ProductPlanDetail where 开工单号='{0} '
-union 
+union all
 select '合计','','','','',sum(套数),0,sum(合计工时),'',''from V_ProductPlanDetail where 开工单号='{0}'", plannumber);
             this.rpList.DataSource = SqlHelper.GetTable(sql);
             this.rpList.DataBind();
