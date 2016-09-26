@@ -304,6 +304,7 @@
                     &nbsp&nbsp; &nbsp&nbsp; 原材料编号：<asp:TextBox ID="txtMaterialNumber" runat="server"></asp:TextBox>
                     &nbsp&nbsp; 客户物料编号：<asp:TextBox ID="txtCustomerMaterialNumber" runat="server"></asp:TextBox>
                     &nbsp&nbsp; 供应商物料编号：<asp:TextBox ID="txtSupplierMaterialNumber" runat="server"></asp:TextBox>
+                    &nbsp&nbsp; 货位：<asp:TextBox ID="txtHW" runat="server"></asp:TextBox>
                 </div>
                 <div style="margin-top: 3px;">
                     &nbsp&nbsp;&nbsp&nbsp;
@@ -318,7 +319,7 @@
                     <span style="display: <%=showCheck %>;">
                         <input type="button" value="审核所有" id="btnAutior" class="button" style="margin-right: 10px;" /></span>
                     <%if (type == "采购入库")
-                        { %>
+                      { %>
                     &nbsp;&nbsp;<input type="button" value="导入采购入库明细" onclick="ImpPurchasingStorage();" />
                     <%} %>
                     &nbsp;&nbsp; <span id="spPrint" runat="server">
@@ -468,12 +469,12 @@
                                 <input type="checkbox" /></label>全选/反选
                         </td>
                         <%if (ShowCustomerOrderNumber)
-                            {%>
+                          {%>
                         <td class="tdOperar_客户采购订单号 ">客户采购订单号
                         </td>
                         <%} %>
                         <%if (showDocumentNumber.Equals("inline"))
-                            {
+                          {
                         %>
                         <td class="tdOperar_单据编号"><%=documentName%>
                         </td>
@@ -485,14 +486,14 @@
                         <%--  <td class="tdOperar_产成品编号" style='display: <%=showProductNumber%>;'>产成品编号
                         </td>--%>
                         <%if (showProductNumber.Equals("inline"))
-                            {
+                          {
                         %>
                         <td class="tdOperar_产成品编号">产成品编号
                         </td>
                         <%} %>
 
                         <%if (showProductNumber.Equals("inline"))
-                            {
+                          {
                         %>
                         <td class="tdOperar_客户产成品编号">客户产成品编号
                         </td>
@@ -500,7 +501,7 @@
                         <%--                        <td class="tdOperar_客户产成品编号" style='display: <%=showProductNumber%>;'>客户产成品编号
                         </td>--%>
                         <%if (showProductNumber.Equals("inline"))
-                            {
+                          {
                         %>
                         <td class="tdOperar_版本">版本
                         </td>
@@ -511,14 +512,14 @@
                         </td>
 
                         <%if (showSupplierMaterialNumber.Equals("inline"))
-                            {
+                          {
                         %>
                         <td class="tdOperar_供应商物料编号">供应商物料编号
                         </td>
                         <%} %>
 
                         <%if (showCustomerMaterialNumber.Equals("inline"))
-                            {
+                          {
                         %>
                         <td class="tdOperar_客户物料编号">客户物料编号
                         </td>
@@ -572,12 +573,12 @@
                                 <%#Eval("出入库编号")%>
                             </td>--%>
                                 <%if (ShowCustomerOrderNumber)
-                                    {%>
+                                  {%>
                                 <td class="tdOperar_客户采购订单号 "><%#Eval("客户采购订单号") %>
                                 </td>
                                 <%} %>
                                 <%if (showDocumentNumber.Equals("inline"))
-                                    {
+                                  {
                                 %>
                                 <td class="tdOperar_单据编号"><%#Eval("单据编号") %>
                                 </td>
@@ -591,14 +592,14 @@
                                 </td>--%>
 
                                 <%if (showProductNumber.Equals("inline"))
-                                    {
+                                  {
                                 %>
                                 <td class="tdOperar_产成品编号"><%#Eval("产成品编号") %>
                                 </td>
                                 <%} %>
 
                                 <%if (showProductNumber.Equals("inline"))
-                                    {
+                                  {
                                 %>
                                 <td class="tdOperar_客户产成品编号"><%#Eval("客户产成品编号") %>
                                 </td>
@@ -610,7 +611,7 @@
                                     <%#Eval("版本")%>
                                 </td>--%>
                                 <%if (showProductNumber.Equals("inline"))
-                                    {
+                                  {
                                 %>
                                 <td class="tdOperar_版本"><%#Eval("版本") %>
                                 </td>
@@ -620,26 +621,26 @@
                                     <%#Eval("原材料编号")%>
                                 </td>
                                 <%if (showSupplierMaterialNumber.Equals("inline"))
-                                    {
+                                  {
                                 %>
                                 <td class="tdOperar_供应商物料编号"><%#Eval("供应商物料编号") %>
                                 </td>
                                 <%} %>
                                 <%if (showCustomerMaterialNumber.Equals("inline"))
-                                    { %>
+                                  { %>
                                 <td class="tdOperar_客户物料编号"><%#Eval("客户物料编号") %> </td>
                                 <%} %>
                                 <td class="tdOperar_货位">
                                     <%#Eval("货位")%>
                                 </td>
                                 <%if (showSupplierName.Equals("inline"))
-                                    { %>
+                                  { %>
                                 <td class="tdOperar_供应商名称" style='display: <%=showSupplierName%>;'>
                                     <%#Eval("供应商名称")%>
                                 </td>
                                 <%} %>
                                 <%if (showCustomerName.Equals("inline"))
-                                    { %>
+                                  { %>
                                 <td class="tdOperar_客户名称" style='display: <%=showCustomerName%>;'>
                                     <%#Eval("客户名称")%>
                                 </td>
@@ -701,11 +702,11 @@
                         <td>合计
                         </td>
                         <%if (ShowCustomerOrderNumber)
-                            {%>
+                          {%>
                         <td></td>
                         <%} %>
                         <%if (showDocumentNumber.Equals("inline"))
-                            {
+                          {
                         %>
                         <td></td>
                         <%} %>
@@ -716,20 +717,20 @@
                         <%--  <td class="tdOperar_产成品编号" style='display: <%=showProductNumber%>;'>产成品编号
                         </td>--%>
                         <%if (showProductNumber.Equals("inline"))
-                            {
+                          {
                         %>
                         <td></td>
                         <%} %>
 
                         <%if (showProductNumber.Equals("inline"))
-                            {
+                          {
                         %>
                         <td class="tdOperar_客户产成品编号"></td>
                         <%} %>
                         <%--                        <td class="tdOperar_客户产成品编号" style='display: <%=showProductNumber%>;'>客户产成品编号
                         </td>--%>
                         <%if (showProductNumber.Equals("inline"))
-                            {
+                          {
                         %>
                         <td class="tdOperar_版本"></td>
                         <%} %>
@@ -738,13 +739,13 @@
                         <td class="tdOperar_原材料编号"></td>
 
                         <%if (showSupplierMaterialNumber.Equals("inline"))
-                            {
+                          {
                         %>
                         <td class="tdOperar_供应商物料编号"></td>
                         <%} %>
 
                         <%if (showCustomerMaterialNumber.Equals("inline"))
-                            {
+                          {
                         %>
                         <td class="tdOperar_客户物料编号"></td>
                         <%} %>
@@ -775,7 +776,7 @@
             </table>
         </div>
         <%if (type == "采购入库")
-            { %>
+          { %>
         <div>
             <iframe frameborder="0" style="min-width: 200px; min-height: 450px; width: 100%;" src="OrderCheckPage.aspx?WarehouseNumber=<%=Request["WarehouseNumber"] %>"></iframe>
         </div>

@@ -397,6 +397,10 @@ select '{0}',OrdersNumber ,MaterialNumber ,SupplierMaterialNumber,NonDeliveryQty
                 {
                     condition += " and 货物类型 like '%" + txtCargoType.Text.Trim() + "%'";
                 }
+                if (txtHW.Text != "")
+                {
+                    condition += " and 货位 like '%" + txtHW.Text.Trim() + "%'";
+                }
                 //if (type.Equals("采购入库"))
                 //{
                 //   // sql = string.Format();

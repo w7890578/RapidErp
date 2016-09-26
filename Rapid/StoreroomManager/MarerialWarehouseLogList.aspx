@@ -37,18 +37,15 @@
         //导出Execl前将查询条件内容写入隐藏标签
         function ImpExecl() {
             var txt_Numbers = $.trim($("#txt_Numbers").val());
-            if(txt_Numbers=="")
-            {
+            if (txt_Numbers == "") {
                 alert("请输入出入库编号！");
                 return false;
             }
-            querySql = "exec Report_MaterialWarehouseQty '" + txt_Numbers+"'";
-            
+            querySql = "exec Report_MaterialWarehouseQty '" + txt_Numbers + "'";
+
             $("#txtSql").val(querySql + "");
             return true;
         }
-
-
 
         //排序字段
         var sortname = "制单时间";
@@ -222,8 +219,6 @@
         }
         $(document).ready(function () {
 
-
-
             //查询
             $("#btnSearch").click(function () {
 
@@ -244,7 +239,7 @@
                 //去掉最后一个逗号
                 var reg = /,$/gi;
                 checkResult = checkResult.replace(reg, "");
-                //这是获取的值  
+                //这是获取的值
                 if (confirm("确定删除选择的数据?")) {
                     //通用删除
                     DeleteData("../StoreroomManager/MarerialWarehouseLogList.aspx", ConvertsContent(checkResult), "btnSearch");
@@ -255,7 +250,7 @@
                 // $("." + className + " tbody tr:odd").addClass("odd");
                 var obj = $("." + className + " thead tr th");
                 obj.find("img").hide();
-                // obj.addClass("header"); 
+                // obj.addClass("header");
                 //排序事件
                 obj.click(function () {
                     obj.find("img").hide();
@@ -305,7 +300,7 @@
                 //去掉最后一个逗号
                 var reg = /,$/gi;
                 checkResult = checkResult.replace(reg, "");
-                //这是获取的值  
+                //这是获取的值
                 if (confirm("确定审核选择的数据?")) {
                     Check("../StoreroomManager/MarerialWarehouseLogList.aspx", ConvertsContent(checkResult), "btnSearch");
                 }
@@ -326,7 +321,6 @@
 
         });
     </script>
-
 </head>
 <body>
     <form id="form1" runat="server">
@@ -521,12 +515,11 @@
                                              <td class="pg_talbe_head">
                                                <label title="多个出入库编号之间用“逗号(,)”分开，注意：逗号是英文输入法状态下的符号"> 出入库编号（多）：</label>
                                             </td>
-                                            <td colspan="9" >
-                                                <input type="text" id="txt_Numbers" style="width:600px;"/>   &nbsp;&nbsp;   &nbsp;&nbsp;
+                                            <td colspan="9">
+                                                <input type="text" id="txt_Numbers" style="width:600px;" />   &nbsp;&nbsp;   &nbsp;&nbsp;
                                                <asp:Button ID="Button1" runat="server" Text="导出统计结果" OnClick="Button1_Click" OnClientClick="return ImpExecl()"
                                                             CssClass="button" />
-                                         
-                                            </td> 
+                                            </td>
                                             </tr>
                                         <tr>
                                             <td colspan="10">
@@ -585,7 +578,6 @@
                                                                     </div>
                                                                 </td>
                                                             </tr>
-                                                             
                                                         </tfoot>
                                                     </table>
                                                 </div>
@@ -620,8 +612,6 @@
                     </table>
                 </td>
             </tr>
-
-            
         </table>
     </div>
     </form>
