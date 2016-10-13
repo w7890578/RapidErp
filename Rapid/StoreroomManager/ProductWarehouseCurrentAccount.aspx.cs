@@ -1,16 +1,26 @@
-﻿using System;
+﻿using BLL;
+using DAL;
+using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
-using BLL;
-using DAL;
-using System.Data;
 
 namespace Rapid.StoreroomManager
 {
     public partial class ProductWarehouseCurrentAccount : System.Web.UI.Page
     {
+        protected void btnExcel_Click(object sender, EventArgs e)
+        {
+            string sql = txtSql.Text;
+            if (string.IsNullOrEmpty(sql))
+            {
+                return;
+            }
+            ToolCode.Tool.ExpExcel(sql, "产成品库房流水帐");
+        }
+
         protected void Page_Load(object sender, EventArgs e)
         {
             if (!IsPostBack)
@@ -25,8 +35,7 @@ namespace Rapid.StoreroomManager
 
         private void GetPage(string url, string btnId, string height, string width)
         {
-
-            int pageCount = 0;//总页数 
+            int pageCount = 0;//总页数
             int totalRecords = 0;//总行数
             string error = string.Empty;
             string text = string.Empty;
@@ -58,13 +67,10 @@ namespace Rapid.StoreroomManager
                         {
                             tdTextTemp += string.Format("<td style='display:none;'>{0}</td>", dr[i]);
                         }
-
                         else
                         {
                             tdTextTemp += string.Format("<td>{0}</td>", dr[i]);
                         }
-
-
                     }
                 }
                 temp = string.Format(@"<input type='checkbox' name='subBox' value='{0}'/>", dr["guid"]);
@@ -78,11 +84,8 @@ namespace Rapid.StoreroomManager
                     editName = "编辑 ";
                 }
 
-
-
-
                 text += string.Format(@"<tr><td>
-{8}</td>{1}  
+{8}</td>{1}
 <td>
 
 <a href='###'  value='{0}' onclick=""OpenDialog('{2}?guid={0}&date={3}','{4}','{5}','{6}')"">
@@ -91,21 +94,11 @@ namespace Rapid.StoreroomManager
 </td></tr>", dr["guid"], tdTextTemp, url, DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss"), btnId, height, width, editName, temp
            , ToolCode.Tool.GetUser().UserNumber.Equals("sysAdmin") ? "inline" : "none");
             }
-            text = string.Format("<tr><td>合计<td><td colspan='5'></td><td>{0}</td><td>{1}</td><td>{2}</td><td colspan='4'></td></tr>{3}", shouru, fachu, jiecun, text);
+            text = string.Format("<tr><td>合计<td><td colspan='6'></td><td>{0}</td><td>{1}</td><td>{2}</td><td colspan='4'></td></tr>{3}", shouru, fachu, jiecun, text);
             string pageing = ToolManager.PagerGetAjax("http://www.baidu.com", totalRecords, Convert.ToInt32(pageIndex), Convert.ToInt32(pageSize), ref pageCount);
             string responseValue = pageCount.ToString() + "^" + text + "^" + pageing + "^" + totalRecords;
             HttpContext.Current.Response.Write(responseValue);
             HttpContext.Current.Response.End();
-        }
-
-        protected void btnExcel_Click(object sender, EventArgs e)
-        {
-            string sql = txtSql.Text;
-            if (string.IsNullOrEmpty(sql))
-            {
-                return;
-            }
-            ToolCode.Tool.ExpExcel(sql, "产成品库房流水帐");
         }
     }
 }

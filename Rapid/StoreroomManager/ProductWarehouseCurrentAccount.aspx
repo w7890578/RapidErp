@@ -71,11 +71,10 @@
             }
             if (txtEndDate != '' && txtStartDate != '') {
                 condition += " and  移动时间 between '" + txtStartDate + "' and '" + txtEndDate + "' ";
-            } 
+            }
             return condition;
 
         }
-
 
         //导出Execl前将查询条件内容写入隐藏标签
         function ImpExecl() {
@@ -101,7 +100,6 @@
             // sql = " union all select '合计','','','','','','',SUM(收入),SUM(发出),SUM(结存),'','','' from V_ProductWarehouseCurrentAccount";
             // sql = sql + " " + GetQueryCondition();
             // querySql = querySql + sql;
-
 
             $.ajax({
                 type: "Get",
@@ -203,8 +201,6 @@
                 GetData(1, sortname, sortdirection);
             });
 
-
-
             //绑定排序事件和样式
             function tablesorter(className) {
                 var obj = $("." + className + " thead tr th");
@@ -248,7 +244,6 @@
 
         });
     </script>
-
 </head>
 <body>
     <form id="form1" runat="server">
@@ -313,12 +308,11 @@
                                                 <td></td>
                                             </tr>
                                             <tr>
-                                                <td>&nbsp&nbsp;&nbsp&nbsp;&nbsp&nbsp;&nbsp&nbsp; 开始时间： 
+                                                <td>&nbsp&nbsp;&nbsp&nbsp;&nbsp&nbsp;&nbsp&nbsp; 开始时间：
                                                     <input name="txtStartDate" type="text" id="txtStartDate" class="input" size="25" onfocus="WdatePicker({skin:'green',dateFmt:'yyyy-MM-dd HH:mm:ss' } )" />
                                                 </td>
                                                 <td>结束时间:
                                                 <input name="txtEndDate" type="text" id="txtEndDate" class="input" size="25" onfocus="WdatePicker({skin:'green',dateFmt:'yyyy-MM-dd HH:mm:ss' })" />
-
                                                 </td>
                                                 <td></td>
                                                 <td></td>
@@ -376,6 +370,8 @@
                                                                     <th sortname='出入库编号'>出入库编号<span><img src="../Img/bg.gif" id="Img2" /></span>
                                                                     </th>
                                                                     <th sortname='相关单号'>相关单号<span><img src="../Img/bg.gif" id="Img6" /></span>
+                                                                    </th>
+                                                                    <th sortname='订单类型'>订单类型<span><img src="../Img/bg.gif" id="Img12" /></span>
                                                                     </th>
                                                                     <th sortname='收入'>收入<span><img src="../Img/bg.gif" id="Img4" /></span>
                                                                     </th>
