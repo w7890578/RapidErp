@@ -1,6 +1,5 @@
 ﻿<%@ Page Language="C#" AutoEventWireup="true" CodeBehind="Report_MaterialRunningMoney.aspx.cs" Inherits="Rapid.FinancialManager.Report_MaterialRunningMoney" %>
 
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head runat="server">
@@ -15,7 +14,7 @@
 
     <script type="text/javascript">
         $(function () {
-            //查询sql语句 
+            //查询sql语句
             $("#btnPrint").click(function () {
                 $("#choosePrintClounm").toggle();
             });
@@ -67,7 +66,6 @@
                 newwin.document.body.innerHTML = document.getElementById("form1").innerHTML;
                 newwin.document.getElementById("divHeader").style.display = 'none';
                 newwin.document.getElementById("choosePrintClounm").style.display = 'none';
-
 
                 newwin.window.print();
                 newwin.window.close();
@@ -248,20 +246,18 @@
         }
         $(document).ready(function () {
 
-
             //查询
             $("#btnSearch").click(function () {
 
                 GetData(1, sortname, sortdirection);
             });
 
-
             //绑定排序事件和样式
             function tablesorter(className) {
                 // $("." + className + " tbody tr:odd").addClass("odd");
                 var obj = $("." + className + " thead tr th");
                 obj.find("img").hide();
-                // obj.addClass("header"); 
+                // obj.addClass("header");
                 //排序事件
                 obj.click(function () {
                     obj.find("img").hide();
@@ -294,7 +290,6 @@
                 });
             });
 
-
             //绑定
             tablesorter("tablesorter");
             //进入页面加载数据
@@ -306,7 +301,6 @@
 
         });
     </script>
-
 </head>
 <body style="padding: 5px 10px 0px 0px;">
     <div id="progressBar" style="position: absolute; top: 40%; left: 50%; display: none;">
@@ -407,7 +401,7 @@
                                     &nbsp;&nbsp;
                                     &nbsp;&nbsp;
                                 </div>
-                                <div style="float: left; width: 150;margin-top:10px;">
+                                <div style="float: left; width: 150; margin-top: 10px;">
                                     &nbsp;&nbsp;&nbsp;&nbsp; 开始时间:
                                   <input type="text" id="txtStartTime" style="margin-right: 10px" onfocus="WdatePicker({skin:'green'})" />
                                     &nbsp;&nbsp;结束时间:
@@ -416,19 +410,17 @@
                                 <input onkeyup="if(this.value.length==1){this.value=this.value.replace(/[^1-9]/g,'')}else{this.value=this.value.replace(/\D/g,'')}"
                                     onafterpaste="if(this.value.length==1){this.value=this.value.replace(/[^1-9]/g,'')}else{this.value=this.value.replace(/\D/g,'')}"
                                     maxlength="3" type="text" style="width: 60px;" id="txtPageSize" value="50" />
-                               
-                                
 
-                                <div style="float:right; width: 65px ;margin-right:10px;" id="div1" runat="server">
-                                    <asp:Button ID="btnExport" runat="server" Text="导出Excel" OnClick="btnExport_Click"
-                                        class="button" OnClientClick="return ImpExecl()" />
-                                </div><div style="float:right; width: 65px;margin-left:10px; ">
-                                    <input type="button" value="查询" id="btnSearch" class="button" />
+                                    <div style="float: right; width: 65px; margin-right: 10px;" id="div1" runat="server">
+                                        <asp:Button ID="btnExport" runat="server" Text="导出Excel" OnClick="btnExport_Click"
+                                            class="button" OnClientClick="return ImpExecl()" />
+                                    </div>
+                                    <div style="float: right; width: 65px; margin-left: 10px;">
+                                        <input type="button" value="查询" id="btnSearch" class="button" />
+                                    </div>
                                 </div>
                             </div>
-                            </div>
 
-                           
                             <br />
                             <%--  <br />
                             <br />
@@ -437,10 +429,7 @@
                                 这段时间内进行MRP运算。
                             </div>--%>
                         </div>
-
-
                     </td>
-
                 </tr>
                 <tr>
                     <td colspan="10">
@@ -453,6 +442,8 @@
                                         <th sortname='供应商物料编号'>供应商物料编号<span><img src="../Img/bg.gif" id="Img1" /></span>
                                         </th>
                                         <th sortname='客户物料编号'>客户物料编号<span><img src="../Img/bg.gif" id="Img1" /></span>
+                                        </th>
+                                        <th sortname='种类'>种类<span><img src="../Img/bg.gif" id="Img2" /></span>
                                         </th>
                                         <th sortname='移动时间'>移动时间<span><img src="../Img/bg.gif" id="Img1" /></span>
                                         </th>
@@ -480,13 +471,13 @@
                                 </thead>
                                 <tbody>
                                     <tr>
-                                        <td colspan="14" align="center">暂无数据
+                                        <td colspan="15" align="center">暂无数据
                                         </td>
                                     </tr>
                                 </tbody>
                                 <tfoot>
                                     <tr>
-                                        <td colspan="14" style="background-color: #F3FFE3; padding-top: 10px; padding-left: 10px; padding-right: 10px;">
+                                        <td colspan="15" style="background-color: #F3FFE3; padding-top: 10px; padding-left: 10px; padding-right: 10px;">
                                             <div id="pageing" class="pages clearfix">
                                             </div>
                                         </td>
