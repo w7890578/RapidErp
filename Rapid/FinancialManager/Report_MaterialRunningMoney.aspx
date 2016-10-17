@@ -122,7 +122,10 @@
             var txtEndTime = $.trim($("#txtEndTime").val());
             var txtCustomerMatrialNumber = $.trim($("#txtCustomerMatrialNumber").val());
             var txtSupplierMatrialNumber = $.trim($("#txtSupplierMatrialNumber").val());
-
+            var txtKind = $.trim($("#txtKind").val());
+            if (txtKind != "") {
+                condition += " and 种类 like '%" + txtKind + "%'";
+            }
             if (txtMoveReason != "") {
                 condition += " and  移动原因  like '%" + txtMoveReason + "%' ";
             }
@@ -398,7 +401,9 @@
                                 <input type="text" id="txtSupplierMatrialNumber" style="margin-right: 10px" />
                                     &nbsp;&nbsp;移动原因：
                                 <input type="text" id="txtMoveReason" style="margin-right: 10px" />
-                                    &nbsp;&nbsp;
+
+                                    &nbsp;&nbsp;种类：
+                                <input type="text" id="txtKind" style="margin-right: 10px" />
                                     &nbsp;&nbsp;
                                 </div>
                                 <div style="float: left; width: 150; margin-top: 10px;">
