@@ -12,23 +12,23 @@
     <script src="../Js/Main.js" type="text/javascript"></script>
 
     <script type="text/javascript">
-        $(function() {
+        $(function () {
             //查询sql语句
 
-            $("#btnBack").click(function() {
+            $("#btnBack").click(function () {
                 window.location.href = "ProductPlanList.aspx";
             });
-            $("#btnPrint").click(function() {
+            $("#btnPrint").click(function () {
                 $("#choosePrintClounm").toggle();
             });
-            $("#btnExit").click(function() {
+            $("#btnExit").click(function () {
                 $("#choosePrintClounm").hide();
             });
-            $("#btnChoosePrintColum").click(function() {
+            $("#btnChoosePrintColum").click(function () {
                 var chooseResult = "";
                 var unChooseResult = "";
                 var arrChk = $("input[name='columList']:checkbox");
-                $(arrChk).each(function() {
+                $(arrChk).each(function () {
                     if ($(this).is(':checked')) {
                         chooseResult += $(this).val() + ",";
 
@@ -51,7 +51,7 @@
                     return;
                 }
                 //遍历border样式的table下的td
-                $("#printTalbe tr td").each(function() {
+                $("#printTalbe tr td").each(function () {
                     className = $(this).attr("class");
                     if (className == "tdOperar") {
                         $(this).hide();
@@ -67,11 +67,11 @@
                 newwin = window.open("", "newwin", "height=900,width=900,toolbar=no,scrollbars=auto,menubar=no,resizable=no,location=no");
                 newwin.document.body.innerHTML = document.getElementById("form1").innerHTML;
                 newwin.document.getElementById("divHeader").style.display = 'none';
-                newwin.document.getElementById("choosePrintClounm").style.display = 'none'; 
+                newwin.document.getElementById("choosePrintClounm").style.display = 'none';
                 newwin.window.print();
                 newwin.window.close();
                 $("#choosePrintClounm").hide();
-                $("#printTalbe tr td").each(function() {
+                $("#printTalbe tr td").each(function () {
                     $(this).show();
                 })
                 $("#divHiddeMGX").show();
@@ -84,7 +84,7 @@
                     type: "Get",
                     url: "ProductPlanDetailList.aspx",
                     data: { time: new Date(), PlanNumber: plannumber },
-                    success: function(result) {
+                    success: function (result) {
                         if (result == "1") {
                             alert("删除成功！");
                             $("#btnSearch").click();
@@ -107,8 +107,7 @@
     </script>
 
     <style type="text/css">
-        .printDiv
-        {
+        .printDiv {
             border-radius: 5px;
             border: 1px solid #B3D08F;
             margin-top: 5px;
@@ -121,28 +120,27 @@
 <body style="padding: 5px 10px 0px 0px;">
     <form id="form1" runat="server">
     <style type="text/css">
-        .border
-        {
+        .border {
             background-color: Black;
             width: 100%;
             font-size: 14px;
             text-align: center;
         }
-        .border tr td
-        {
-            padding: 4px;
-            background-color: White;
-        }
-        a
-        {
+
+            .border tr td {
+                padding: 4px;
+                background-color: White;
+            }
+
+        a {
             color: Blue;
         }
-        a:hover
-        {
-            color: Red;
-        }
-        #choosePrintClounm
-        {
+
+            a:hover {
+                color: Red;
+            }
+
+        #choosePrintClounm {
             position: absolute;
             top: 20px;
             left: 50px;
@@ -153,23 +151,23 @@
             font-size: 14px;
             display: none;
         }
-        #choosePrintClounm ul
-        {
-            margin-bottom: 10px;
-        }
-        #choosePrintClounm div
-        {
-            text-align: center;
-            color: Green;
-        }
-        #choosePrintClounm ul li
-        {
-            list-style: none;
-            float: left;
-            width: 100%;
-            cursor: pointer;
-        }
-        </style>
+
+            #choosePrintClounm ul {
+                margin-bottom: 10px;
+            }
+
+            #choosePrintClounm div {
+                text-align: center;
+                color: Green;
+            }
+
+            #choosePrintClounm ul li {
+                list-style: none;
+                float: left;
+                width: 100%;
+                cursor: pointer;
+            }
+    </style>
     <div id="divHiddeMGX">
       首页  >  生产管理  > <a href="ProductPlanList.aspx";>开工单列表</a>  >  开工单总表详细列表
     </div>
@@ -199,7 +197,7 @@
                                 销售订单号
                             </label>
                         </li>
-                        
+
                         <li>
                             <label>
                                 <input type="checkbox" name="columList" value="tdOperar_产成品编号" checked="checked" />
@@ -268,7 +266,6 @@
         </tr>
         <tr>
             <td rowspan="4" style="width:200px;">
-               
             </td>
             <td rowspan="2"  style="width:100px;">
                 单位：小时
@@ -276,11 +273,11 @@
             <td align="center">
                 额定总工时：  <asp:Label ID="lblRatedTotalManhour" runat="server" Text=""></asp:Label>
             </td>
-         
-            <td >
+
+            <td>
                 目标完成工时： <asp:Label ID="lblTargetFinishManhour" runat="server" Text=""></asp:Label>
             </td>
-      
+
             <td>
             </td>
             <td>
@@ -292,28 +289,24 @@
             <td align="center">
                 实际总工时：  <asp:Label ID="lblFactTotalManhour" runat="server" Text=""></asp:Label>
             </td>
-          
+
             <td>
                 实际完成工时：<asp:Label ID="lblFactFinishManhour" runat="server" Text=""></asp:Label>
             </td>
-          
-                
-           
-          
         </tr>
         <tr>
-           <td rowspan="2" >
+           <td rowspan="2">
                人数：<asp:Label ID="lblPersonQty" runat="server" Text=""></asp:Label>
             </td>
-            
+
             <td align="center">
                 计划开始时间：   <asp:Label ID="lblPlanStartTime" runat="server" Text=""></asp:Label>
             </td>
-          
+
             <td>
                 实际开始时间：   <asp:Label ID="lblFactStartTime" runat="server" Text=""></asp:Label>
             </td>
-          
+
             <td>
             </td>
             <td>
@@ -323,15 +316,13 @@
             <td align="center">
                 计划结束时间：  <asp:Label ID="lblPlanEndTime" runat="server" Text=""></asp:Label>
             </td>
-          
+
             <td>
                 实际结束时间：   <asp:Label ID="lblFactEndTime" runat="server" Text=""></asp:Label>
             </td>
             <td>
-             
             </td>
             <td>
-          
         </tr>
     </table>
     <table class="border" cellpadding="1" cellspacing="1" id ="printTalbe">
@@ -418,7 +409,6 @@
     </table>
     <div style="font-size: 14px; text-align: right; margin-right: 10px; margin-top: 10px;">
         <asp:Label ID="lblAuditor" runat="server" Text="Label"></asp:Label></div>
-    
     </form>
 </body>
 </html>
