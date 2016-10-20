@@ -19,7 +19,6 @@
         //查询sql语句
         var querySql = "";
 
-
         function Edit(marielNumber, warehouseId, tableName) {
             //OpenDialog("../StoreroomManager/EditMaterialStockQty.aspx?marielNumber=" + marielNumber + "&warehouseId=" + warehouseId + "&tableName=" + tableName, "btnSearch", "200", "500");
             //var ulr = "../StoreroomManager/EditMaterialStockQty.aspx?marielNumber=" + marielNumber + "&warehouseId=" + warehouseId + "&tableName=" + tableName;
@@ -34,8 +33,6 @@
             $("#saveInfo").val(querySql + "");
             return true;
         }
-
-
 
         //获取查询条件
         function GetQueryCondition() {
@@ -93,7 +90,7 @@
                 return;
             }
             var number = getQueryString("number");
-           // var name = getQueryString("warehouseName");
+            // var name = getQueryString("warehouseName");
             //$("#divTitle").html(name);
 
             //querySql = "   select * from V_QuoteInfo_List  ";
@@ -184,13 +181,20 @@
         }
 
         $(document).ready(function () {
+            document.onkeydown = function (e) {
+                var ev = document.all ? window.event : e;
+                if (ev.keyCode == 13) {
+                    $("#btnSearch").click();
+                    return false;
+                }
+            }
+
             $("#navHead").html("&nbsp;&nbsp;首页&nbsp;&nbsp;>&nbsp;&nbsp;库房管理&nbsp;&nbsp;>&nbsp;&nbsp;仓库信息&nbsp;&nbsp;>&nbsp;&nbsp;仓库详细信息");
             $("#divOutMain").width(1450);
             //查询
             $("#btnSearch").click(function () {
                 GetData(1, sortname, sortdirection);
             });
-
 
             //绑定排序事件和样式
             function tablesorter(className) {
@@ -235,7 +239,6 @@
 
         });
     </script>
-
 </asp:Content>
 <asp:Content ID="Content2" ContentPlaceHolderID="ContentPlaceHolder1" runat="server">
     <div>
@@ -278,7 +281,7 @@
             <tr>
                 <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;型&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;号：<input type="text" id="txtmaterialName" />
                 </td>
-                <td> 货&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;位：<input type="text" id="txtCargo" /></td>
+                <td>货&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;位：<input type="text" id="txtCargo" /></td>
                 <td colspan="5" style="text-align: left">
                     <div style="vertical-align: middle">
                         <div style="float: left; width: 150;">
@@ -312,7 +315,7 @@
                         <table class="tablesorter" cellpadding="1" cellspacing="1" width="1220px">
                             <thead>
                                 <tr>
-                                    <th  sortname='序号' style="display: none;">序号<span style="text-align: center; float: right; margin-top: 7px;"><img src="../Img/bg.gif"
+                                    <th sortname='序号' style="display: none;">序号<span style="text-align: center; float: right; margin-top: 7px;"><img src="../Img/bg.gif"
                                         id="Img10" /></span>
                                     </th>
                                     <th sortname='MaterialNumber'>原材料编号<span><img src="../Img/bg.gif" id="sortImg" /></span>
