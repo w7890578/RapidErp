@@ -1,22 +1,31 @@
-﻿using System;
+﻿using BLL;
+using DAL;
+using Rapid.ToolCode;
+using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
-using BLL;
-using DAL;
-using Rapid.ToolCode;
-using System.Data;
+
 namespace Rapid.PurchaseManager
 {
     public partial class CertificateOrdersListDetail : System.Web.UI.Page
     {
-        public static string number = string.Empty;
         public static string checkStatus = string.Empty;
-        public static string hasEdit = "none";
         public static string hasDelete = "none";
+        public static string hasEdit = "none";
+        public static string number = string.Empty;
         public static string showPay = "none";
         public static string userId = "";
+
+        public string CCTCOrdersNumber = string.Empty;
+
+        protected void btnSearch_Click(object sender, EventArgs e)
+        {
+            Bind();
+        }
+
         protected void Page_Load(object sender, EventArgs e)
         {
             if (!IsPostBack)
@@ -26,14 +35,13 @@ namespace Rapid.PurchaseManager
                 hasEdit = ToolCode.Tool.GetUserMenuFuncStr("L0203", "Edit");
                 hasDelete = ToolCode.Tool.GetUserMenuFuncStr("L0203", "Delete");
 
-
                 //超级管理员操作
                 if (Request["isEditQty"] != null && Request["isEditQty"] != "")//编辑数量
                 {
                     string guid = Request["guid"];
                     string qty = Request["qty"];
                     //检查数量是否小于已交数量
-                    string sqlCheck = string.Format(@"  
+                    string sqlCheck = string.Format(@"
  select  COUNT(0) from CertificateOrdersDetail where {0}<DeliveryQty and Guid='{1}'
 ", qty, guid);
                     if (!SqlHelper.GetScalar(sqlCheck).Equals("0"))
@@ -44,23 +52,23 @@ namespace Rapid.PurchaseManager
                     }
                     string errorEdit = "";
                     List<string> sqlEdits = new List<string>();
-                    string sqlEdit = string.Format(@" 
-update CertificateOrdersDetail 
+                    string sqlEdit = string.Format(@"
+update CertificateOrdersDetail
  set
  OrderQty={0},
  NonDeliveryQty={0}-DeliveryQty,
  SumPrice=UnitPrice*{0},
  SumPrice_C=UnitPrice_C*{0},
- Status=case when ({0}-DeliveryQty)=0 then '已完成' else '未完成' end 
+ Status=case when ({0}-DeliveryQty)=0 then '已完成' else '未完成' end
  where Guid='{1}'
 ", qty, guid);
                     sqlEdits.Add(sqlEdit);
 
-                    sqlEdits.Add(@" 
+                    sqlEdits.Add(@"
  update CertificateOrders set OrderStatus='已完成'
  where OrdersNumber in (
   select OrdersNumber from CertificateOrdersDetail group by OrdersNumber having(SUM (NonDeliveryQty ))=0)");
-                    sqlEdits.Add(@" 
+                    sqlEdits.Add(@"
  update CertificateOrders set OrderStatus='未完成'
  where OrdersNumber not  in (
   select OrdersNumber from CertificateOrdersDetail group by OrdersNumber having(SUM (NonDeliveryQty ))=0)");
@@ -68,9 +76,7 @@ update CertificateOrdersDetail
                     Response.Write(result ? "1" : errorEdit);
                     Response.End();
                     return;
-
                 }
-
 
                 if (!ToolManager.CheckQueryString("OrdersNumber"))
                 {
@@ -80,8 +86,10 @@ update CertificateOrdersDetail
                 }
 
                 number = ToolManager.GetQueryString("OrdersNumber");
-                string sql = string.Format(@"select co.PaymentMode,si.SupplierName,si.Email,si.FactoryAddress,si.ContactTelephone,
-si.Fax,co.OrdersDate,co.OrdersNumber,pu.USER_NAME,co.HTNumber,pm.PaymentMode as PayName  from
+                string sql = string.Format(@"
+select co.PaymentMode,si.SupplierName,si.Email,si.FactoryAddress,si.ContactTelephone,
+si.Fax,co.OrdersDate,co.OrdersNumber,pu.USER_NAME,co.HTNumber,pm.PaymentMode as PayName
+,co.CCTCOrdersNumber from
 CertificateOrders co left join PM_USER pu on co.ContactId=pu.USER_ID
 left join SupplierInfo si on si.SupplierId=co.SupplierId
 inner join PaymentMode pm on co.PaymentMode =pm.Id
@@ -89,7 +97,6 @@ inner join PaymentMode pm on co.PaymentMode =pm.Id
                 DataTable dt = SqlHelper.GetTable(sql);
                 if (dt.Rows.Count > 0)
                 {
-
                     DataRow dr = dt.Rows[0];
                     lblContactName.Text = dr["USER_NAME"] == null ? "" : dr["USER_NAME"].ToString();
                     lblSupplieId.Text = dr["SupplierName"] == null ? "" : dr["SupplierName"].ToString();
@@ -101,6 +108,7 @@ inner join PaymentMode pm on co.PaymentMode =pm.Id
                     lblContactTelephone.Text = dr["ContactTelephone"] == null ? "" : dr["ContactTelephone"].ToString();
                     lbPayMode.Text = dr["PayName"] == null ? "" : dr["PayName"].ToString();
                     showPay = dr["PaymentMode"] == null ? "" : dr["PaymentMode"].ToString();
+                    CCTCOrdersNumber = dr["CCTCOrdersNumber"] == null ? "" : dr["CCTCOrdersNumber"].ToString();
                     if (showPay.Equals("YFBF"))
                     {
                         showPay = "inline";
@@ -109,7 +117,6 @@ inner join PaymentMode pm on co.PaymentMode =pm.Id
                     {
                         showPay = "none";
                     }
-
                 }
                 Bind();
             }
@@ -138,7 +145,6 @@ inner join PaymentMode pm on co.PaymentMode =pm.Id
                     Response.End();
                     return;
                 }
-
             }
             sql = string.Format(@"select cast(ROW_NUMBER ()over(order by cod.RowNumber asc) as varchar(10)) as num,cod.OrdersNumber,cod.MaterialNumber,cod.LeadTime,
 cod.SupplierMaterialNumber,cod.OrderQty,cod.NonDeliveryQty,
@@ -163,11 +169,6 @@ from CertificateOrdersDetail cod inner join MarerialInfoTable mi on cod.Material
             this.rpList.DataBind();
             checkStatus = BLL.PurchaseManager.GetCheckStatus(ordersNumber) ? "none" : "inline";
             hdnumber.Value = ordersNumber;
-
-        }
-        protected void btnSearch_Click(object sender, EventArgs e)
-        {
-            Bind();
         }
     }
 }

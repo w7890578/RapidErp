@@ -370,6 +370,19 @@ case when a.ChangeDirection='入库' then StockQty +a.Qty else StockQty-a.Qty en
  ", warehouseNumber);
             sqls.Add(sql);
 
+            //如果是采购退料出库则反写出库单号至采购订单上
+            if (type.Equals("采购退料出库"))
+            {
+                string tempSql = string.Format(@"
+update  CertificateOrders set CCTCOrdersNumber='{0}'
+where OrdersNumber in (
+select distinct DocumentNumber from MaterialWarehouseLogDetail
+where WarehouseNumber='{0}'
+)", warehouseNumber);
+                sqls.Add(tempSql);
+                //warehouseNumber
+            }
+
             //步骤四：同步更新采购入库订单明细的已交货、未交货、状态以及整条订单状态
             sql = string.Format("update CertificateOrdersDetail set NonDeliveryQty =OrderQty-DeliveryQty");
             sqls.Add(sql);

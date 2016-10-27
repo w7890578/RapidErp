@@ -90,11 +90,10 @@ function jsprint(msgtitle, url, msgcss) {
     }, 3000);
 }
 
-
 //#####################
 //    常用功能js
 //#####################
-//字符串格式化 
+//字符串格式化
 String.prototype.format = function (args) {
     var result = this;
     if (arguments.length > 0) {
@@ -109,7 +108,6 @@ String.prototype.format = function (args) {
         else {
             for (var i = 0; i < arguments.length; i++) {
                 if (arguments[i] != undefined) {
-
                     var reg = new RegExp("({)" + i + "(})", "g");
                     result = result.replace(reg, arguments[i]);
                 }
@@ -119,21 +117,21 @@ String.prototype.format = function (args) {
     return result;
 }
 
-//格式化当前时间为yyyy-mm-dd形式 
+//格式化当前时间为yyyy-mm-dd形式
 function getNowFormatDate() {
     var day = new Date();
     var Year = 0;
     var Month = 0;
     var Day = 0;
     var CurrentDate = "";
-    //初始化时间 
-    //Year= day.getYear();//有火狐下2008年显示108的bug 
-    Year = day.getFullYear(); //ie火狐下都可以 
+    //初始化时间
+    //Year= day.getYear();//有火狐下2008年显示108的bug
+    Year = day.getFullYear(); //ie火狐下都可以
     Month = day.getMonth() + 1;
     Day = day.getDate();
-    //Hour = day.getHours(); 
-    // Minute = day.getMinutes(); 
-    // Second = day.getSeconds(); 
+    //Hour = day.getHours();
+    // Minute = day.getMinutes();
+    // Second = day.getSeconds();
     CurrentDate += Year + "-";
     if (Month >= 10) {
         CurrentDate += Month + "-";
@@ -150,8 +148,7 @@ function getNowFormatDate() {
     return CurrentDate;
 }
 
-
-//判断日期是否为标准格式 yyyy-MM-dd 
+//判断日期是否为标准格式 yyyy-MM-dd
 function isDateString(sDate) {
     sDate = $.trim(sDate);
     var mp = /\d{4}-\d{2}-\d{2}/;
@@ -172,7 +169,7 @@ function isDateString(sDate) {
     return true;
 }
 
-//空值检测 
+//空值检测
 function CheckNull(str) {
     str = $.trim(str);
     if (str == "") {
@@ -185,7 +182,6 @@ function CheckNull(str) {
         return false;
     }
 }
-
 
 /// <summary>
 /// 内容形式转换
@@ -203,7 +199,6 @@ function ConvertsContent(value) {
     }
     return value;
 }
-
 
 // 打开普通窗口
 function OpenNewWindow(url, height, width) {
@@ -223,7 +218,6 @@ function OpenDialog(url, queryId, height, width) {
 //    }, 3000);
 //}
 
-
 //#####################
 //  控件绑定通用js
 //#####################
@@ -235,7 +229,6 @@ function BindSelect(contentType, controlId) {
         url: "../AjaxRequest/GetToolContent.aspx?time=" + new Date(),
         data: { contentType: contentType },
         success: function (result) {
-
             $("#" + controlId).html("");
             $("#" + controlId).html(result);
         }
@@ -276,9 +269,6 @@ function DeleteData(url, ids, queryId) {
         }
     });
 }
-
-
-
 
 function DeleteDataProperty(url, id, ids, queryId) {
     $.ajax({
@@ -357,7 +347,7 @@ function DeleteProductWorkSnCoefficient(url, id, version, WorkSnNumber, ids, que
 var hkey_root, hkey_path, hkey_key
 hkey_root = "HKEY_CURRENT_USER" //注册表根目录
 hkey_path = "\\Software\\Microsoft\\Internet Explorer\\PageSetup\\"
-//设置网页打印的页眉页脚为空 
+//设置网页打印的页眉页脚为空
 function pagesetup_null() {
     try {
         var RegWsh = new ActiveXObject("WScript.Shell")
@@ -378,7 +368,6 @@ function pagesetup_null() {
 
         hkey_key = "margin_bottom"//下边距
         RegWsh.RegWrite(hkey_root + hkey_path + hkey_key, "0.0")
-
     } catch (e) {
         alert("您的ie浏览器限制了打印操作：请打开你的ie浏览器internet选项—— 安全—— 自定义级别—— 把对没有标记为安全的activex控件进行初始化和脚本运行 设置为启用");
         return false;
@@ -387,7 +376,7 @@ function pagesetup_null() {
 
 function doPrint(printDiv, btnPrint, btnBack, btnAdd) {
     try {
-        //pagesetup_null(); 
+        //pagesetup_null();
 
         newwin = window.open("../Index/Print.aspx", "newwin", "height=900,width=750,toolbar=no,scrollbars=auto,menubar=no,resizable=no,location=no");
         newwin.document.body.innerHTML = document.getElementById(printDiv).innerHTML;
@@ -409,9 +398,7 @@ function doPrint(printDiv, btnPrint, btnBack, btnAdd) {
         //        pagesetup_default();
     }
     catch (e) { }
-
 }
-
 
 //==========================页面加载时JS函数开始===============================
 //输入框显示提示效果，配合CSS运用
@@ -435,6 +422,18 @@ $(function () {
     }).blur(function (event) {
         $("#HintMsg").remove(); //删除UL
     });
+
+    document.onkeydown = function (e) {
+        var ev = document.all ? window.event : e;
+        if (ev.keyCode == 13) {
+            var btnSearch = $("#btnSearch");
+            if (btnSearch != null && btnSearch != undefined) {
+                btnSearch.click();
+                return false;
+            }
+            //.click();
+        }
+    }
 });
 
 //------------------------------------------------------------------------------------------------------------------------
@@ -482,30 +481,3 @@ $(function () {
         }
     })
 })
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
