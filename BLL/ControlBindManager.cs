@@ -1,11 +1,11 @@
-﻿using System;
+﻿using DAL;
+using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Data;
-using DAL;
+using System.Text;
 using System.Web.UI.WebControls;
 
-namespace BLL 
+namespace BLL
 {
     /// <summary>
     /// 控件内容绑定通用类
@@ -13,24 +13,6 @@ namespace BLL
     public static class ControlBindManager
     {
         #region 下拉框获取内容通用函数
-        /// <summary>
-        /// 下拉框通用获取内容函数
-        /// </summary>
-        /// <param name="sql">sql语句</param>
-        /// <param name="keyCloumName">key字段名</param>
-        /// <param name="valueCloumName">value字段名</param>
-        /// <returns></returns>
-        public static string GetOption(string sql, string keyCloumName, string valueCloumName)
-        {
-            string error = string.Empty;
-            string result = "<option value =\"\">- - - - - 请 选 择 - - - - -</option>";
-            DataTable dt = SqlHelper.GetTable(sql, ref error);
-            foreach (DataRow dr in dt.Rows)
-            {
-                result += string.Format(" <option value ='{0}'>{1}</option> ", dr[keyCloumName], dr[valueCloumName]);
-            }
-            return result;
-        }
 
         public static void BindDrp(string sql, DropDownList drp, string valueName, string textName)
         {
@@ -45,9 +27,8 @@ namespace BLL
                 drp.DataBind();
             }
             drp.Items.Insert(0, new ListItem("- - - - - 请 选 择 - - - - -", ""));
-
-
         }
+
         /// <summary>
         /// 绑定ListBox并设置为可多选
         /// </summary>
@@ -69,9 +50,70 @@ namespace BLL
             }
             lb.SelectionMode = ListSelectionMode.Multiple;
         }
-        #endregion
+
+        public static void BindListBox(string sql, ListBox lb, string valueName, string textName, List<string> removeValues)
+        {
+            lb.Items.Clear();
+
+            string error = string.Empty;
+            DataTable dt = SqlHelper.GetTable(sql, ref error);
+            if (dt.Rows.Count > 0)
+            {
+                for (int i = 0; i < dt.Rows.Count; i++)
+                {
+                    DataRow dr = dt.Rows[i];
+                    var value = dr[valueName] == null ? "" : dr[valueName].ToString();
+                    if (removeValues.Contains(value))
+                    {
+                        dt.Rows.Remove(dr);
+                        i--;
+                    }
+                }
+                lb.DataSource = dt;
+                lb.DataValueField = valueName;
+                lb.DataTextField = textName;
+                lb.DataBind();
+            }
+            lb.SelectionMode = ListSelectionMode.Multiple;
+        }
+
+        public static void BindListBox(DataTable dt, ListBox lb, string valueName, string textName)
+        {
+            lb.Items.Clear();
+            string error = string.Empty;
+            if (dt.Rows.Count > 0)
+            {
+                lb.DataSource = dt;
+                lb.DataValueField = valueName;
+                lb.DataTextField = textName;
+                lb.DataBind();
+            }
+            lb.SelectionMode = ListSelectionMode.Multiple;
+        }
+
+        /// <summary>
+        /// 下拉框通用获取内容函数
+        /// </summary>
+        /// <param name="sql">sql语句</param>
+        /// <param name="keyCloumName">key字段名</param>
+        /// <param name="valueCloumName">value字段名</param>
+        /// <returns></returns>
+        public static string GetOption(string sql, string keyCloumName, string valueCloumName)
+        {
+            string error = string.Empty;
+            string result = "<option value =\"\">- - - - - 请 选 择 - - - - -</option>";
+            DataTable dt = SqlHelper.GetTable(sql, ref error);
+            foreach (DataRow dr in dt.Rows)
+            {
+                result += string.Format(" <option value ='{0}'>{1}</option> ", dr[keyCloumName], dr[valueCloumName]);
+            }
+            return result;
+        }
+
+        #endregion 下拉框获取内容通用函数
 
         #region 绑定原材料种类
+
         public static void MarerialKind(DropDownList drp)
         {
             string error = string.Empty;
@@ -83,9 +125,11 @@ namespace BLL
             drp.DataBind();
             drp.Items.Insert(0, new ListItem("- - - - - 请 选 择 - - - - -", ""));
         }
-        #endregion
+
+        #endregion 绑定原材料种类
 
         #region 绑定原材料类别
+
         public static void MareriaType(DropDownList drp)
         {
             string error = string.Empty;
@@ -96,11 +140,12 @@ namespace BLL
             drp.DataTextField = "Type";
             drp.DataBind();
             drp.Items.Insert(0, new ListItem("- - - - - 请 选 择 - - - - -", ""));
-
         }
-        #endregion
+
+        #endregion 绑定原材料类别
 
         #region 绑定客户
+
         public static void BindCustomer(DropDownList drp)
         {
             string error = string.Empty;
@@ -112,51 +157,65 @@ namespace BLL
             drp.DataBind();
             drp.Items.Insert(0, new ListItem("- - - - - 请 选 择 - - - - -", ""));
         }
-        #endregion
+
+        #endregion 绑定客户
 
         #region 客户编号
+
         public static string GetCustomerNumber()
         {
             return GetOption(" select  distinct (CustomerId) from Customer ", "CustomerId", "CustomerId");
         }
-        #endregion
+
+        #endregion 客户编号
 
         #region 客户名称
+
         public static string GetCustomerName()
         {
             return GetOption(" select  distinct (CustomerName) from Customer ", "CustomerName", "CustomerName");
         }
-        #endregion
+
+        #endregion 客户名称
 
         #region 客户开户银行
+
         public static string GetCustomerAccountBank()
         {
             return GetOption(" select distinct (AccountBank)   from Customer", "AccountBank", "AccountBank");
         }
-        #endregion
+
+        #endregion 客户开户银行
 
         #region 获取收款方式
+
         public static string GetReceivablesMode()
         {
             return GetOption("select Id,MakeCollectionsMode from MakeCollectionsMode", "Id", "MakeCollectionsMode");
         }
-        #endregion
+
+        #endregion 获取收款方式
 
         #region 送货单号
+
         public static string GetDeliveryNumber()
         {
             return GetOption("select DeliveryNumber from DeliveryBill", "DeliveryNumber", "DeliveryNumber");
         }
-        #endregion
+
+        #endregion 送货单号
 
         #region 送货人
+
         public static string GetDeliveryPerson()
         {
             return GetOption("select distinct (DeliveryPerson) from DeliveryBill", "DeliveryPerson", "DeliveryPerson");
         }
-        #endregion
+
+        #endregion 送货人
 
         #region 获取用户姓名
+
         /// <summary>
         /// 获取用户姓名
         /// </summary>
@@ -171,23 +230,29 @@ namespace BLL
             }
             return GetOption(sql, "UserNumber", "UserName");
         }
-        #endregion
+
+        #endregion 获取用户姓名
 
         #region 获取角色
+
         public static string GetRoleInfo()
         {
             return GetOption("select RoleNumber,RoleName from RoleInfo", "RoleNumber", "RoleName");
         }
-        #endregion
+
+        #endregion 获取角色
 
         #region 获取职位
+
         public static string GetPost()
         {
             return GetOption("select  distinct( Post) from userInfo", "Post", "Post");
         }
-        #endregion
+
+        #endregion 获取职位
 
         #region 绑定角色
+
         /// <summary>
         /// 绑定角色
         /// </summary>
@@ -204,9 +269,10 @@ namespace BLL
             drp.Items.Insert(0, new ListItem("- - - - - 请 选 择 - - - - -", ""));
         }
 
-        #endregion
+        #endregion 绑定角色
 
         #region 绑定供应商
+
         /// <summary>
         /// 绑定供应商
         /// </summary>
@@ -222,117 +288,146 @@ namespace BLL
             drp.DataBind();
             drp.Items.Insert(0, new ListItem("- - - - - 请 选 择 - - - - -", ""));
         }
-        #endregion
+
+        #endregion 绑定供应商
 
         #region 产成品编号（原材料报废上报）
+
         public static string GetProductNumber()
         {
             return GetOption(" select  distinct (productnumber) from MarerialScrapLog ", "productnumber", "productnumber");
         }
-        #endregion
+
+        #endregion 产成品编号（原材料报废上报）
 
         #region 原材料编号
+
         public static string GetMaterialNumber()
         {
             return GetOption(" select  distinct (MaterialNumber) from MarerialScrapLog ", "MaterialNumber", "MaterialNumber");
         }
-        #endregion
+
+        #endregion 原材料编号
 
         #region 开工单号
+
         public static string GetProductionOrderNumber()
         {
             return GetOption(" select  distinct (ProductionOrderNumber) from ProcessTestingTable ", "ProductionOrderNumber", "ProductionOrderNumber");
         }
-        #endregion
+
+        #endregion 开工单号
 
         #region 产成品编号（过程检验）
+
         public static string GetProductId()
         {
             return GetOption(" select  distinct (ProductNumber) from ProcessTestingTable ", "ProductNumber", "ProductNumber");
         }
-        #endregion
+
+        #endregion 产成品编号（过程检验）
 
         #region 产成品类型（产成品）
+
         public static string GetProductType()
         {
             return GetOption(" select  distinct (类别) from V_Product  ", "类别", "类别");
         }
-        #endregion
+
+        #endregion 产成品类型（产成品）
 
         #region 客户产成品编号
+
         public static string GetCustomerProductNumber()
         {
             return GetOption(" select  distinct (CustomerProductNumber) from ProcessTestingTable ", "CustomerProductNumber", "CustomerProductNumber");
         }
-        #endregion
 
+        #endregion 客户产成品编号
 
+        #region 类别（产品基本信息表）
 
-        #region  类别（产品基本信息表）
         public static string GetType()
         {
             return GetOption(" select  distinct (Type) from Product ", "Type", "Type");
         }
-        #endregion
 
-        #region  年度（员工考试成绩上报表）
+        #endregion 类别（产品基本信息表）
+
+        #region 年度（员工考试成绩上报表）
+
         public static string GetYear()
         {
             return GetOption(" select  distinct (Year) from ExaminationLog ", "Year", "Year");
         }
-        #endregion
 
-        #region  月份（员工考试成绩上报表）
+        #endregion 年度（员工考试成绩上报表）
+
+        #region 月份（员工考试成绩上报表）
+
         public static string GetMonth()
         {
             return GetOption(" select  distinct (Month) from ExaminationLog ", "Month", "Month");
         }
-        #endregion
 
-        #region  姓名（员工考试成绩上报表）
+        #endregion 月份（员工考试成绩上报表）
+
+        #region 姓名（员工考试成绩上报表）
+
         public static string GetName()
         {
             return GetOption(" select distinct(姓名) from V_ExaminationLog ", "姓名", "姓名");
         }
-        #endregion
 
-        #region  原材料种类(原材料信息表)
+        #endregion 姓名（员工考试成绩上报表）
+
+        #region 原材料种类(原材料信息表)
+
         public static string GetMaterialKind()
         {
             return GetOption(" select distinct(种类) from V_MarerialInfoTable ", "种类", "种类");
         }
-        #endregion
 
-        #region  原材料种类(原材料信息表)
+        #endregion 原材料种类(原材料信息表)
+
+        #region 原材料种类(原材料信息表)
+
         public static string GetMarerialType()
         {
             return GetOption(" select distinct(类别) from V_MarerialInfoTable ", "类别", "类别");
         }
-        #endregion
 
+        #endregion 原材料种类(原材料信息表)
 
-        #region  原材料类别(原材料信息表)
+        #region 原材料类别(原材料信息表)
+
         public static string GetMaterialType()
         {
             return GetOption(" select distinct( mt.Type) from MareriaType mt inner join  MarerialKind mk on mt.Pid=mk.Id ", "Type", "Type");
         }
-        #endregion
 
-        #region  原材料编号(供需平衡表)
+        #endregion 原材料类别(原材料信息表)
+
+        #region 原材料编号(供需平衡表)
+
         public static string GetMaterialNumberGong()
         {
             return GetOption(" select  distinct (MaterialNumber) from SupplyAndDemandBalance ", "MaterialNumber", "MaterialNumber");
         }
-        #endregion
+
+        #endregion 原材料编号(供需平衡表)
 
         #region 采购订单编号
+
         public static string GetOrdersNumber()
         {
             return GetOption("select OrdersNumber from CertificateOrders", "OrdersNumber", "OrdersNumber");
         }
-        #endregion
+
+        #endregion 采购订单编号
 
         #region 绑定产品
+
         /// <summary>
         /// 绑定产品
         /// </summary>
@@ -347,189 +442,233 @@ namespace BLL
             drp.DataTextField = "text";
             drp.DataBind();
             drp.Items.Insert(0, new ListItem("- - - - - 请 选 择 - - - - -", ""));
-
-
         }
-        #endregion
 
-        #region  包编码(包信息列表)
+        #endregion 绑定产品
+
+        #region 包编码(包信息列表)
+
         public static string GetPackageNumber()
         {
             return GetOption(" select  distinct (PackageNumber) from PackageInfo ", "PackageNumber", "PackageNumber");
         }
-        #endregion
 
-        #region  包名称(包信息列表)
+        #endregion 包编码(包信息列表)
+
+        #region 包名称(包信息列表)
+
         public static string GetPackageName()
         {
             return GetOption(" select  distinct (PackageName) from PackageInfo ", "PackageName", "PackageName");
         }
-        #endregion
 
-        #region  仓库类型（出入库类型列表）
+        #endregion 包名称(包信息列表)
+
+        #region 仓库类型（出入库类型列表）
+
         public static string Gethousetype()
         {
             return GetOption(" select  distinct (WarehouseInOutType) from WarehouseInOutType ", "WarehouseInOutType", "WarehouseInOutType");
         }
-        #endregion
 
-        #region  变动方向（出入库类型列表）
+        #endregion 仓库类型（出入库类型列表）
+
+        #region 变动方向（出入库类型列表）
+
         public static string GetChangeDirection()
         {
             return GetOption(" select  distinct (ChangeDirection) from WarehouseInOutType ", "ChangeDirection", "ChangeDirection");
         }
-        #endregion
 
-        #region  类型（出入库类型列表）
+        #endregion 变动方向（出入库类型列表）
+
+        #region 类型（出入库类型列表）
+
         public static string GetInOutType()
         {
             return GetOption(" select  distinct (InOutType) from WarehouseInOutType ", "InOutType", "InOutType");
         }
-        #endregion
 
-        #region  盘点编号（库存盘点）
+        #endregion 类型（出入库类型列表）
+
+        #region 盘点编号（库存盘点）
+
         public static string GetInventoryNumber()
         {
             return GetOption(" select  distinct (InventoryNumber) from StockInventoryLog ", "InventoryNumber", "InventoryNumber");
         }
-        #endregion
 
-        #region  仓库名称（库存盘点）
+        #endregion 盘点编号（库存盘点）
+
+        #region 仓库名称（库存盘点）
+
         public static string GetWarehouseName()
         {
             return GetOption(" select distinct (WarehouseName) from WarehouseInfo", "WarehouseName", "WarehouseName");
         }
-        #endregion
 
-        #region  盘点类型（库存盘点）
+        #endregion 仓库名称（库存盘点）
+
+        #region 盘点类型（库存盘点）
+
         public static string GetInventoryType()
         {
             return GetOption(" select  distinct (InventoryType) from StockInventoryLog ", "InventoryType", "InventoryType");
         }
-        #endregion
+
+        #endregion 盘点类型（库存盘点）
 
         #region 出入库编号（产成品出入库列表）
+
         public static string GetProductWarehouseLogWarehouseNumber()
         {
             return GetOption(" select  distinct (WarehouseNumber) from ProductWarehouseLog ", "WarehouseNumber", "WarehouseNumber");
         }
-        #endregion
+
+        #endregion 出入库编号（产成品出入库列表）
 
         #region 仓库名称（产成品出入库列表）
+
         public static string GetProductWarehouseLogWarehouseName()
         {
             return GetOption(" select distinct wi.WarehouseName as WarehouseName from ProductWarehouseLog pw left join WarehouseInfo wi on pw.WarehouseName=wi.WarehouseNumber ", "WarehouseName", "WarehouseName");
         }
-        #endregion
+
+        #endregion 仓库名称（产成品出入库列表）
 
         #region 变动方向（产成品出入库列表）
+
         public static string GetProductWarehouseLogChangeDirection()
         {
             return GetOption(" select  distinct (ChangeDirection) from ProductWarehouseLog ", "ChangeDirection", "ChangeDirection");
         }
-        #endregion
+
+        #endregion 变动方向（产成品出入库列表）
 
         #region 出入库类型（产成品出入库列表）
+
         public static string GetProductWarehouseLogType()
         {
             return GetOption(" select  distinct (Type) from ProductWarehouseLog ", "Type", "Type");
         }
-        #endregion
+
+        #endregion 出入库类型（产成品出入库列表）
 
         #region 订单号（应付账款表）
+
         public static string GetPayOrdersNumber()
         {
             return GetOption("select distinct (OrdersNumber) from AccountsPayable", "OrdersNumber", "OrdersNumber");
         }
-        #endregion
+
+        #endregion 订单号（应付账款表）
 
         #region 供应商名称（应付账款表）
+
         public static string GetPaySupplierName()
         {
             return GetOption("select distinct 供应商名称 from V_AccountsPayable", "供应商名称", "供应商名称");
         }
-        #endregion
 
-
+        #endregion 供应商名称（应付账款表）
 
         #region 订单号（应收账款表）
+
         public static string GetReceivOrdersNumber()
         {
             return GetOption("select distinct (OrdersNumber) from AccountsReceivable", "OrdersNumber", "OrdersNumber");
         }
-        #endregion
+
+        #endregion 订单号（应收账款表）
 
         #region 产成品编号（应收账款表）
+
         public static string GetReceivProductNumber()
         {
             return GetOption("select distinct (ProductNumber) from AccountsReceivable", "ProductNumber", "ProductNumber");
         }
 
-        #endregion
+        #endregion 产成品编号（应收账款表）
 
         #region 客户编号（应收账款）
+
         public static string GetReceivaCustomerId()
         {
             return GetOption("select distinct 客户名称 from V_AccountsReceivable", "客户名称", "客户名称");
         }
-        #endregion
+
+        #endregion 客户编号（应收账款）
 
         #region 客户名称（销售订单信息表）
+
         public static string GetSaleOderCustomer()
         {
             return GetOption(" select distinct 客户名称 from V_SaleOder ", "客户名称", "客户名称");
         }
-        #endregion
+
+        #endregion 客户名称（销售订单信息表）
 
         #region 开工单号（开工单总表）
+
         public static string GetPlanNumber()
         {
             return GetOption("select distinct 开工单号 from V_ProductPlan", "开工单号", "开工单号");
         }
-        #endregion
+
+        #endregion 开工单号（开工单总表）
 
         #region 制单人（开工单总表）
+
         public static string GetCreator()
         {
             return GetOption("select distinct 制单人 from V_ProductPlan", "制单人", "制单人");
         }
-        #endregion
+
+        #endregion 制单人（开工单总表）
 
         #region 班组（开工单分表）
+
         public static string GetTeam()
         {
             return GetOption(" select distinct 班组 from V_ProductPlanSub", "班组", "班组");
         }
-        #endregion
+
+        #endregion 班组（开工单分表）
 
         #region 采购订单编号（采购订单主表）
+
         public static string GetOrdersNm()
         {
             return GetOption("select distinct OrdersNumber from V_CertificateOrders", "OrdersNumber", "OrdersNumber");
         }
-        #endregion
+
+        #endregion 采购订单编号（采购订单主表）
 
         #region 付款方式（采购订单主表）
+
         public static string GetPaymentMode()
         {
             return GetOption("select distinct PaymentMode from V_CertificateOrders", "PaymentMode", "PaymentMode");
         }
-        #endregion
+
+        #endregion 付款方式（采购订单主表）
 
         #region 供应商（采购订单主表）
+
         public static string GetSupplierN()
         {
             return GetOption("select distinct SupplierName from V_CertificateOrders", "SupplierName", "SupplierName");
         }
-        #endregion
+
+        #endregion 供应商（采购订单主表）
 
         #region 业务员（采购订单主表）
+
         public static string GetuserName()
         {
             return GetOption("select distinct USER_NAME from V_CertificateOrders", "USER_NAME", "USER_NAME");
         }
-        #endregion
 
-
+        #endregion 业务员（采购订单主表）
     }
 }

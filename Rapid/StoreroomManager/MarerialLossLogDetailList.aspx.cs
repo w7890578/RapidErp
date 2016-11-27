@@ -1,22 +1,42 @@
-﻿using System;
+﻿using BLL;
+using DAL;
+using Rapid.ToolCode;
+using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
-using BLL;
-using DAL;
-using Rapid.ToolCode;
-using System.Data;
-
 
 namespace Rapid.StoreroomManager
 {
     public partial class MarerialLossLogDetailList : System.Web.UI.Page
     {
-
-        public static string show = "inline";
-        public static string hasEdit = "inline";
         public static string hasDelete = "inline";
+        public static string hasEdit = "inline";
+        public static string show = "inline";
+
+        protected void btnCheck_Click(object sender, EventArgs e)
+        {
+            string error = string.Empty;
+            string autior = ToolCode.Tool.GetUser().UserNumber;
+            string warehouseNumber = ToolManager.GetQueryString("WarehouseNumber");
+            bool result = Check(warehouseNumber, ref error);
+            if (result)
+            {
+                Response.Redirect("MarerialWarehouseLogList.aspx");
+            }
+            else
+            {
+                lbMsg.Text = "审核失败，原因：" + error;
+            }
+        }
+
+        protected void btnSearch_Click(object sender, EventArgs e)
+        {
+            Bind();
+        }
+
         protected void Page_Load(object sender, EventArgs e)
         {
             if (!IsPostBack)
@@ -34,26 +54,7 @@ namespace Rapid.StoreroomManager
                 isExit(ToolManager.GetQueryString("WarehouseNumber"));
             }
         }
-        /// <summary>
-        /// 检测是否有审核时间
-        /// </summary>
-        /// <param name="warehousenumber"></param>
-        private void isExit(string warehousenumber)
-        {
-            string sql = string.Empty;
-            sql = string.Format(" select CheckTime from MarerialWarehouseLog where WarehouseNumber='{0}'", warehousenumber);
-            string checktime = SqlHelper.GetScalar(sql);
-            if (checktime == "" || checktime == null)
-            {
-                show = "inline";
 
-            }
-            else
-            {
-                show = "none";
-            }
-
-        }
         private void Bind()
         {
             string sql = string.Empty;
@@ -63,7 +64,6 @@ namespace Rapid.StoreroomManager
             string version = ToolManager.GetQueryString("Version");
             string materialnumber = ToolManager.GetQueryString("MaterialNumber");
 
-
             if (ToolManager.CheckQueryString("WarehouseNumber") && ToolManager.CheckQueryString("ProductNumber") && ToolManager.CheckQueryString("Version") && ToolManager.CheckQueryString("MaterialNumber"))
             {
                 sql = string.Format(@" delete MarerialLossLog where WarehouseNumber ='{0}' and ProductNumber='{1}' and Version='{2}' and
@@ -71,7 +71,6 @@ namespace Rapid.StoreroomManager
                 bool result = SqlHelper.ExecuteSql(sql, ref error);
                 if (result)
                 {
-
                     Tool.WriteLog(Tool.LogType.Operating, "删除原材料损耗出库明细" + warehousenumber, "删除成功");
                     Response.Write("1");
                     Response.End();
@@ -86,42 +85,21 @@ namespace Rapid.StoreroomManager
                 }
             }
 
-            sql = string.Format(@" 
+            sql = string.Format(@"
                   select mll.WarehouseNumber as Warehousenumber, mll.ProductNumber as ProductNumber,mll.Version as Version,mll.MaterialNumber as MaterialNumber,
                   mt.MaterialName as MaterialName,mt.Description as Description,mll.LogDate as Date,
                   pmu.USER_NAME as TakeMaterialPerson,mll.Team as Team,mll.Qty as Qty,
                   wi.WarehouseName as MaterialPosition,mll.LossReason as LossReason,mll.Remark as Remark
-                  ,ms.StockQty 
+                  ,ms.StockQty
                   from  MarerialLossLog mll left join MarerialInfoTable mt on mll.MaterialNumber=mt.MaterialNumber
-                  left join PM_USER pmu on mll.TakeMaterialPerson=pmu.USER_ID left join WarehouseInfo wi on 
-				  
-                  mt.MaterialPosition=wi.WarehouseNumber  
+                  left join PM_USER pmu on mll.TakeMaterialPerson=pmu.USER_ID left join WarehouseInfo wi on
+
+                  mt.MaterialPosition=wi.WarehouseNumber
                   inner join MaterialStock ms on ms.MaterialNumber=mll.MaterialNumber
                   where mll.Warehousenumber='{0}'", warehousenumber);
             this.rpList.DataSource = SqlHelper.GetTable(sql, ref error);
             this.rpList.DataBind();
             hdnumber.Value = ToolManager.GetQueryString("WarehouseNumber");
-        }
-        protected void btnSearch_Click(object sender, EventArgs e)
-        {
-            Bind();
-        }
-
-        protected void btnCheck_Click(object sender, EventArgs e)
-        {
-            string error = string.Empty;
-            string autior = ToolCode.Tool.GetUser().UserNumber;
-            string warehouseNumber = ToolManager.GetQueryString("WarehouseNumber");
-            bool result = Check(warehouseNumber, ref error);
-            if (result)
-            {
-                Response.Redirect("MarerialWarehouseLogList.aspx");
-            }
-            else
-            {
-                lbMsg.Text = "审核失败，原因：" + error;
-            }
-
         }
 
         private bool Check(string warehouseNumber, ref string error)
@@ -167,19 +145,17 @@ where MaterialNumber ='{0}' and WarehouseName='ycl'", dr["MaterialNumber"], dr["
             //写入流水账
             //            sql = string.Format(@"
             //insert into MateialWarehouseCurrentAccount(MaterialNumber ,CustomerMaterialNumber ,SupplierMaterialNumber,
-            //MoveTime ,WarehouseNumber ,OrdersNumber 
+            //MoveTime ,WarehouseNumber ,OrdersNumber
             //,Issue ,Balances ,HandledPerson ,MoveReasons)
             //select ml.MaterialNumber,bom.CustomerMaterialNumber ,'',CONVERT (varchar(100),GETDATE (),20),WarehouseNumber,'',Qty ,InventoryQty ,'{0}'
-            //,'{1}' from MarerialLossLog ml left join BOMInfo bom on ml.ProductNumber =bom.ProductNumber and ml.Version =bom.Version 
+            //,'{1}' from MarerialLossLog ml left join BOMInfo bom on ml.ProductNumber =bom.ProductNumber and ml.Version =bom.Version
             //and ml.MaterialNumber =bom.MaterialNumber where ml.WarehouseNumber ='{2}'", userName, "损耗出库", warehouseNumber);
 
             sql = string.Format(@"
  insert into MateialWarehouseCurrentAccount(MaterialNumber ,CustomerMaterialNumber ,SupplierMaterialNumber,
 MoveTime ,WarehouseNumber ,OrdersNumber,Issue ,Balances ,HandledPerson ,MoveReasons)
- select ml.MaterialNumber,bom.CustomerMaterialNumber ,'',CONVERT (varchar(100),GETDATE (),20),WarehouseNumber,'',ml.Qty ,ISNULL( vm.qty,0) ,'{0}'
-,'{1}' from MarerialLossLog ml 
-left join BOMInfo bom on ml.ProductNumber =bom.ProductNumber and ml.Version =bom.Version  
-and ml.MaterialNumber =bom.MaterialNumber 
+ select ml.MaterialNumber,'' ,'',CONVERT (varchar(100),GETDATE (),20),WarehouseNumber,'',ml.Qty ,ISNULL( vm.qty,0) ,'{0}'
+,'{1}' from MarerialLossLog ml
 left join V_MaterialStock_Qty vm on vm.MaterialNumber=ml.MaterialNumber
 where ml.WarehouseNumber ='{2}'
 ", userName, "损耗出库", warehouseNumber);
@@ -187,6 +163,23 @@ where ml.WarehouseNumber ='{2}'
             return SqlHelper.BatchExecuteSql(sqls, ref error);
         }
 
+        /// <summary>
+        /// 检测是否有审核时间
+        /// </summary>
+        /// <param name="warehousenumber"></param>
+        private void isExit(string warehousenumber)
+        {
+            string sql = string.Empty;
+            sql = string.Format(" select CheckTime from MarerialWarehouseLog where WarehouseNumber='{0}'", warehousenumber);
+            string checktime = SqlHelper.GetScalar(sql);
+            if (checktime == "" || checktime == null)
+            {
+                show = "inline";
+            }
+            else
+            {
+                show = "none";
+            }
+        }
     }
 }
-
