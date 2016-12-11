@@ -349,6 +349,12 @@
                                     <input type="checkbox" name="columList" value="tdOperar_原材料编号" />
                                     原材料编号</label>
                             </li>
+                            <li>
+                                <label>
+                                    <input type="checkbox" name="columList" value="tdOperar_型号" />
+                                    型号</label>
+                            </li>
+
                             <li style='display: <%=showProductNumber%>;'>
                                 <label>
                                     <input type="checkbox" name="columList" value="tdOperar_产成品编号" />
@@ -511,6 +517,8 @@
                         <td class="tdOperar_原材料编号">原材料编号
                         </td>
 
+                        <td class="tdOperar_型号">型号
+                        </td>
                         <%if (showSupplierMaterialNumber.Equals("inline"))
                           {
                         %>
@@ -620,6 +628,9 @@
                                 <td class="tdOperar_原材料编号">
                                     <%#Eval("原材料编号")%>
                                 </td>
+                                <td class="tdOperar_型号">
+                                    <%#Eval("型号")%>
+                                </td>
                                 <%if (showSupplierMaterialNumber.Equals("inline"))
                                   {
                                 %>
@@ -727,6 +738,7 @@
                         %>
                         <td class="tdOperar_客户产成品编号"></td>
                         <%} %>
+                        <td></td>
                         <%--                        <td class="tdOperar_客户产成品编号" style='display: <%=showProductNumber%>;'>客户产成品编号
                         </td>--%>
                         <%if (showProductNumber.Equals("inline"))
