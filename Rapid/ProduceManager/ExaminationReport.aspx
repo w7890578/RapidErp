@@ -10,16 +10,15 @@
     <script src="../Js/jquery-1.10.2.min.js" type="text/javascript"></script>
 
     <script src="../Js/Main.js" type="text/javascript"></script>
-    <script type="text/javascript" src="../Js/Highcharts-4.1.9/js/highcharts.js"></script>
-    <style type="text/css">
+    <%--  <script type="text/javascript" src="../Js/Highcharts-4.1.9/js/highcharts.js"></script>--%>
+    <%--   <style type="text/css">
         $ {
             demo .css;
         }
-    </style>
+    </style>--%>
     <script type="text/javascript">
         $(function () {
             //查询sql语句
-
 
             $("#btnPrint").click(function () {
                 $("#choosePrintClounm").toggle();
@@ -68,7 +67,6 @@
                 newwin.document.getElementById("divHeader").style.display = 'none';
                 newwin.document.getElementById("choosePrintClounm").style.display = 'none';
 
-
                 newwin.window.print();
                 newwin.window.close();
                 $("#choosePrintClounm").hide();
@@ -93,7 +91,6 @@
             return true;
         }
     </script>
-
 </head>
 <body>
     <%
@@ -111,7 +108,7 @@
 
             dtChart.Rows.Add(drChart);
         }
-                    
+
     %>
     <form id="form1" runat="server">
 
@@ -310,10 +307,9 @@
                         </div>
                     </div>
                 </div>
-
             </div>
 
-            <div id="container" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
+            <%--   <div id="container" style="min-width: 310px; height: 400px; margin: 0 auto"></div>--%>
             <br />
             <br />
             <table class="border" cellpadding="1" cellspacing="1" id="mainTable">
@@ -356,14 +352,13 @@
                         </td>
                         <td class="tdOperar_平均分">平均分
                         </td>
-
                     </tr>
                 </thead>
                 <tbody>
 
                     <%foreach (System.Data.DataRow dr in DtResult.Rows)
-                      {
-                          
+                        {
+
                     %>
                     <tr>
                         <td class="tdOperar_名次">
@@ -425,15 +420,11 @@
                 </tbody>
             </table>
         </div>
-
     </form>
     <br />
-
-
-
 </body>
 </html>
-<script type="text/javascript">
+<%--<script type="text/javascript">
     var jsonData = eval('<%= Newtonsoft.Json.JsonConvert.SerializeObject(dtChart)%>');
 
     var Names = new Array();
@@ -477,7 +468,7 @@
                 // 在此方法中可以得到x轴以及y轴的信息，同时也包含了整个series上的数据信息
                 formatter: function () {
                     console.log(this);
-                    return this.x + "<br/>" + this.series.name + "：" + this.y + "分";
+                    return this.x + "<br />" + this.series.name + "：" + this.y + "分";
                 }
             },
             plotOptions: {
@@ -489,7 +480,7 @@
             series: [{
                 name: '总分',
                 data: SumScores,
-              
+
             },
             {
                 name: '平均分',
@@ -498,4 +489,4 @@
             }]
         });
     });
-</script>
+</script>--%>
