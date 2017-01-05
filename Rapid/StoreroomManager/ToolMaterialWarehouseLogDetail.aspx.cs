@@ -13,44 +13,44 @@ namespace Rapid.StoreroomManager
 {
     public partial class ToolMaterialWarehouseLogDetail : System.Web.UI.Page
     {
-        public static string documentName = string.Empty;
+        public double CountQty = 0;
+        public string documentName = string.Empty;
 
-        public static string hasDelete = "inline";
+        public string hasDelete = "inline";
 
-        public static string hasEdit = "inline";
+        public string hasEdit = "inline";
 
-        public static string number = string.Empty;
+        public string number = string.Empty;
 
         //单据编号 产成品编号 供应商物料编号 客户物料编号 供应商名称  客户名称
-        public static string show = "inline";
+        public string show = "inline";
 
-        public static string showAdd = "inline";
-        public static string showCheck = "inline";
-        public static string showCompleteQty = "none";
-        public static string showCustomerMaterialNumber = "inline";
-        public static string showCustomerName = "inline";
+        public string showAdd = "inline";
+        public string showCheck = "inline";
+        public string showCompleteQty = "none";
+        public string showCustomerMaterialNumber = "inline";
+        public string showCustomerName = "inline";
 
         /// <summary>
         /// 是否显示客户订单号
         /// </summary>
-        public static bool ShowCustomerOrderNumber = false;
+        public bool ShowCustomerOrderNumber = false;
 
-        public static string showDelete = "inline";
-        public static string showDocumentNumber = "inline";
-        public static string showLeadTime = "none";
-        public static string showOperar = "inline";
-        public static string showProductNumber = "inline";
-        public static string showRoadTransport = "none";
-        public static string showRowNumber = "none";
-        public static string showSingleDose = "none";
-        public static string showSupplierMaterialNumber = "inline";
-        public static string showSupplierName = "inline";
+        public string showDelete = "inline";
+        public string showDocumentNumber = "inline";
+        public string showLeadTime = "none";
+        public string showOperar = "inline";
+        public string showProductNumber = "inline";
+        public string showRoadTransport = "none";
+        public string showRowNumber = "none";
+        public string showSingleDose = "none";
+        public string showSupplierMaterialNumber = "inline";
+        public string showSupplierName = "inline";
 
         //单据名称
-        public static string type = string.Empty;         //出入库类型
+        public string type = string.Empty;
 
-        public double CountQty = 0;
-
+        //出入库类型
         protected void btnSearch_Click(object sender, EventArgs e)
         {
             lbSubmit.Text = string.Empty;

@@ -313,12 +313,21 @@
                     &nbsp&nbsp; 原材料描述：<asp:TextBox ID="txtMaterialDescription" runat="server"></asp:TextBox>
                     &nbsp&nbsp; 货物类型：<asp:TextBox ID="txtCargoType" runat="server"></asp:TextBox>
                     <asp:Button runat="server" ID="btnSearch" Text="查询" CssClass="button" OnClick="btnSearch_Click"
-                        Style="margin-right: 10px;" /><span style="display: <%=showAdd %>;">
-                            <input type="button" value="增加" id="btnAdd" class="button" style="margin-right: 10px;" /></span>
-                    <input type="button" value="选择" id="btnXuan" style="display: <%=showOperar %>;" style="margin-right: 10px;" />
-                    <span style="display: <%=showCheck %>;">
-                        <input type="button" value="审核所有" id="btnAutior" class="button" style="margin-right: 10px;" /></span>
-                    <%if (type == "采购入库")
+                        Style="margin-right: 10px;" />
+                    <%if (showAdd == "inline")
+                      { %>
+                    <input type="button" value="增加" id="btnAdd" class="button" style="margin-right: 10px;" />
+                    <%}%>
+                    <%if (showOperar == "inline")
+                      { %>
+                    <input type="button" value="选择" id="btnXuan" style="display: <%=showOperar %>; margin-right: 10px;" />
+                    <%}%>
+                    <%if (showCheck == "inline")
+                      { %>
+                    <input type="button" value="审核所有" id="btnAutior" class="button" style="margin-right: 10px;" />
+
+                    <%}%>
+                    <%if (type == "采购入库" && showCheck == "inline")
                       { %>
                     &nbsp;&nbsp;<input type="button" value="导入采购入库明细" onclick="ImpPurchasingStorage();" />
                     <%} %>
